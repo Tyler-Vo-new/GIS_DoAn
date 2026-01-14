@@ -5,7 +5,7 @@
 ### 1. Clone repository
 
 Clone git
-`git clone <https://github.com/Tyler-Vo-new/GIS_DoAn>`
+`git clone https://github.com/Tyler-Vo-new/GIS_DoAn`
 
 ### 2. StartUp
 
