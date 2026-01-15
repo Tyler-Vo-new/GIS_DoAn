@@ -70,7 +70,7 @@ const NavBar_Admin = () => {
                     className='navLink'
                 >
                     <GiExitDoor className="icon" />
-                    <span>Quản lý Thang thoát hiểm</span>
+                    <span>Quản lý Lối thoát hiểm</span>
                 </NavLink>
                 <NavLink
                     to='/system' onClick={toggleNavBar}
