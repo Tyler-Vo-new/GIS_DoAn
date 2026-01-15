@@ -13,6 +13,7 @@ import Dashboard from "./Pages/Dashboard";
 import Utilities from "./Pages/Utilities";
 import System from "./Pages/System";
 import Login from "./Pages/Login";
+import Exit from "./Pages/Exit";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/utilities" element={<Utilities />} />
+              <Route path="/exit" element={<Exit />} />
               <Route path="/system" element={<System />} />
               <Route path="/login" element={<Login />} />
             </Routes>

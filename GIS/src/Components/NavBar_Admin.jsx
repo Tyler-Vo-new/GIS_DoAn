@@ -8,6 +8,7 @@ import { BsFileBarGraph } from "react-icons/bs";
 import { TbTool } from "react-icons/tb";
 import { PiSecurityCamera } from "react-icons/pi";
 import { FaRegUser } from "react-icons/fa";
+import { GiExitDoor } from "react-icons/gi";
 
 const NavBar_Admin = () => {
     const toggleNavBar = () => {
@@ -63,6 +64,13 @@ const NavBar_Admin = () => {
                 >
                     <PiSecurityCamera className="icon" />
                     <span>Quản lý Thiết bị</span>
+                </NavLink>
+                <NavLink
+                    to='/exit' onClick={toggleNavBar}
+                    className='navLink'
+                >
+                    <GiExitDoor className="icon" />
+                    <span>Quản lý Thang thoát hiểm</span>
                 </NavLink>
                 <NavLink
                     to='/system' onClick={toggleNavBar}
