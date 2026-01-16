@@ -1,5 +1,6 @@
 import "../Styles/Components/Login.css";
-import buildingBg from "../assets/BGLogin.png"; // nếu để trong assets
+import buildingBg from "../assets/BGLogin.png";
+import logo from "../assets/logo.png";
 import { FaFacebookF, FaGoogle } from "react-icons/fa";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,9 +21,9 @@ const Login = () => {
             style={{ backgroundImage: `url(${buildingBg})` }}
         >
             <div className="login-card">
-                {/* <div className="login-logo">
-                    🏢
-                </div> */}
+                <div className="login-logo">
+                    <img src={logo} alt="logo" width="70px" height="70px" />
+                </div>
 
                 <h2>Đăng nhập</h2>
                 {/* <p className="login-subtitle">Đăng nhập</p> */}
