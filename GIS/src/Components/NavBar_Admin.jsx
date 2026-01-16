@@ -30,10 +30,15 @@ const NavBar_Admin = () => {
         logout();
         navigate("/");
     };
+
+    const handleLogoClick = () => {
+        navigate("/");
+        goToTop();
+    }
     
     return (
         <div className="navWrapper">
-            <div className="navLogo">
+            <div className="navLogo" onClick={handleLogoClick}>
                 <div className="navlogo">
                     <img src={Logo} alt="logo" width="80px" height="80px" />
                 </div>
