@@ -97,7 +97,7 @@
 .btn-login {
     width: 100%;
     padding: 12px;
-    background: #2563eb;
+    background: var(--default-color);
     border: none;
     border-radius: 8px;
     color: white;
@@ -107,7 +107,7 @@
 }
 
 .btn-login:hover {
-    background: #1d4ed8;
+    background: #5a95de;
 }
 
 .login-register {
