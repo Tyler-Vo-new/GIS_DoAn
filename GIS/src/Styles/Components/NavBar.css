@@ -5,6 +5,8 @@
     left: 0;
     height: 100svh;
     border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
 }
 
 .navLogo {
@@ -30,9 +32,10 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
     font-family: var(--default-font);
     width: 100%;
+    flex: 1;
 }
 
 .navLink {
@@ -52,12 +55,42 @@
     padding: 0px 5px;
 }
 
+
 .navLink:is(.active) {
     background-color: var(--default-color);
 }
 
 .navLink:is(.active) span {
     color: white;
+}
+
+.navLink:is(.active) .icon {
+    color: white;
+}
+
+.navLogout {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border: none;
+    background: none;
+    color: black;
+    padding: 20px 0px 20px 10px;
+    font-size: large;
+    width: 240px;
+    border-radius: 10px;
+    margin: 5px 0px;
+    cursor: pointer;
+    font-family: var(--default-font);
+    margin-top: auto;
+}
+
+.navLogout:hover {
+    background-color: #f0f0f0;
+}
+
+.navLogout .icon {
+    padding: 0px 5px;
 }
 
 .navLink:is(.active) .icon {

@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import '../Styles/Components/NavBar.css';
 import Logo from '../assets/logo.png';
 import { LuMapPinned } from "react-icons/lu";
@@ -9,8 +9,13 @@ import { TbTool } from "react-icons/tb";
 import { PiSecurityCamera } from "react-icons/pi";
 import { FaRegUser } from "react-icons/fa";
 import { GiExitDoor } from "react-icons/gi";
+import { useContext } from "react";
+import { AuthContext } from "../Context/AuthContext";
 
 const NavBar_Admin = () => {
+    const { isLoggedIn, logout } = useContext(AuthContext);
+    const navigate = useNavigate();
+
     const toggleNavBar = () => {
         goToTop();
     }
@@ -20,6 +25,11 @@ const NavBar_Admin = () => {
             top: 0
         });
     }
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
     
     return (
         <div className="navWrapper">
@@ -79,13 +89,30 @@ const NavBar_Admin = () => {
                     <TbTool className="icon" />
                     <span>Sơ đồ Hệ thống</span>
                 </NavLink>
-                <NavLink
-                    to='/login' onClick={toggleNavBar}
-                    className='navLink'
-                >
-                    <FaRegUser className="icon" />
-                    <span>Đăng nhập</span>
-                </NavLink>
+                {!isLoggedIn && (
+                    <NavLink
+                        to='/login' onClick={toggleNavBar}
+                        className='navLink'
+                    >
+                        <FaRegUser className="icon" />
+                        <span>Đăng nhập</span>
+                    </NavLink>
+                )}
+                {isLoggedIn && (
+                    <NavLink
+                        to='/profile' onClick={toggleNavBar}
+                        className='navLink'
+                    >
+                        <FaRegUser className="icon" />
+                        <span>Tài khoản cá nhân</span>
+                    </NavLink>
+                )}
+                {isLoggedIn && (
+                    <button className='navLogout' onClick={handleLogout}>
+                        <GiExitDoor className="icon" />
+                        <span>Đăng xuất</span>
+                    </button>
+                )}
             </div>
         </div>
     );
