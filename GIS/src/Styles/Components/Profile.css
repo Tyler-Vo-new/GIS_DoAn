@@ -93,6 +93,8 @@
 .form-row label {
     font-weight: 500;
     color: #374151;
+    display: flex;
+    align-items: center;
 }
 
 .form-row input,

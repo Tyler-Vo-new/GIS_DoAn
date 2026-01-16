@@ -53,7 +53,7 @@ const Register = () => {
                         <input type="checkbox" id="remember" />
                         <label htmlFor="remember">Tôi đồng ý Chính sách bảo mật và Điều khoản sử dụng</label>
                     </div>
-
+                    <br />
  
 
                     <button className="btn-login" onClick={handleRegister}>Đăng ký</button>
