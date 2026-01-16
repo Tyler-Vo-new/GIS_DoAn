@@ -76,7 +76,7 @@ const Register = () => {
         
         // Tự động đóng modal và chuyển trang sau 2 giây
         setTimeout(() => {
-            navigate("/profile");
+            navigate("/");
         }, 2000);
     };
     return (
