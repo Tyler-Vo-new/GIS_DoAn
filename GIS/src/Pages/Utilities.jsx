@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import "../../Styles/Components/Utilities.css";
+import "../Styles/Components/Utilities.css";
 import {
     deleteUtilityDevice,
     getUtilitiesData,
     updateUtilityDevice,
-} from "../../Services/UtilitiesService";
-import Button from "../../Components/Button";
-import Pagination from "../../Components/Pagination";
-import ConfirmDialog from "../../Components/ConfirmDialog";
-import UtilitiesTabs from "../../Components/UtilitiesTabs";
-import UtilitiesTable from "../../Components/UtilitiesTable";
-import DeviceEditModal from "../../Components/DeviceEditModal";
-import { DEVICE_TABS, STATUS_TONE_MAP } from "../../Constants/utilitiesOptions";
+} from "../Services/UtilitiesService";
+import Button from "../Components/Button";
+import Pagination from "../Components/Pagination";
+import ConfirmDialog from "../Components/ConfirmDialog";
+import UtilitiesTabs from "../Components/UtilitiesTabs";
+import UtilitiesTable from "../Components/UtilitiesTable";
+import DeviceEditModal from "../Components/DeviceEditModal";
+import { DEVICE_TABS, STATUS_TONE_MAP } from "../Constants/utilitiesOptions";
 import {
     FiPlus,
     FiDownload,

@@ -11,7 +11,7 @@ import Map from "./Pages/Map";
 import Search from "./Pages/Search";
 import Rooms from "./Pages/Rooms";
 import Dashboard from "./Pages/Dashboard";
-import Utilities from "./Pages/Utilities/Utilities";
+import Utilities from "./Pages/Utilities";
 import System from "./Pages/System";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
