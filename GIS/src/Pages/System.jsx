@@ -1,7 +1,217 @@
 import { useState } from "react";
 
+/* ================== CONSTANTS ================== */
+const SVG_WIDTH = 600;
+const SVG_HEIGHT = 900;
+const MAIN_SHAFT_X = 300;
+
+/* ================== SYSTEM LAYERS ================== */
+const SYSTEMS = {
+    electric: {
+        color: "#d32f2f",
+        dash: "6,4",
+        offset: -10,
+        slot: -10,
+        label: "Điện",
+    },
+    ventilation: {
+        color: "#388e3c",
+        dash: "4,4",
+        offset: 0,
+        slot: 0,
+        label: "Thông gió",
+    },
+    water: {
+        color: "#1976d2",
+        dash: "",
+        offset: 10,
+        slot: 10,
+        label: "Nước",
+    },
+};
+
+/* ================== ROOM → SYSTEM RULE ENGINE ================== */
+const ROOM_SYSTEMS = {
+    P101: ["electric", "water"],
+    P102: ["electric", "ventilation"],
+    P103: ["electric", "water"],
+    P104: ["electric", "ventilation", "water"],
+    P105: ["electric"],
+    P106: ["electric", "water"],
+
+    P107: ["electric", "ventilation"],
+    P108: ["electric"],
+    P109: ["electric", "water"],
+    P110: ["electric", "ventilation"],
+
+    P111: ["electric", "water"],
+    P112: ["electric"],
+    P113: ["electric", "ventilation"],
+    P114: ["electric", "water"],
+    P115: ["electric"],
+
+    P116: ["electric", "water"],
+    P117: ["electric"],
+    P118: ["electric", "ventilation"],
+    P119: ["electric"],
+};
+
+/* ================== ROOMS (POLYGON JSON) ================== */
+/* Toạ độ được dựng theo đúng bố cục hình bạn gửi */
+const ROOMS = [
+    // ===== LEFT TOP =====
+    {
+        id: "P106",
+        points: [[40, 60], [180, 60], [180, 150], [40, 150]],
+        label: { x: 110, y: 105 },
+    },
+    {
+        id: "P105",
+        points: [[40, 150], [180, 150], [180, 240], [40, 240]],
+        label: { x: 110, y: 195 },
+    },
+    {
+        id: "P104",
+        points: [
+            [40, 240],
+            [180, 240],
+            [180, 280],
+            [150, 280],
+            [150, 320],
+            [40, 320],
+        ],
+        label: { x: 110, y: 280 },
+    },
+    {
+        id: "P103",
+        points: [[40, 320], [180, 320], [180, 400], [40, 400]],
+        label: { x: 110, y: 360 },
+    },
+    {
+        id: "P102",
+        points: [[40, 400], [180, 400], [180, 480], [40, 480]],
+        label: { x: 110, y: 440 },
+    },
+    {
+        id: "P101",
+        points: [[40, 480], [180, 480], [180, 570], [40, 570]],
+        label: { x: 110, y: 525 },
+    },
+
+    // ===== RIGHT TOP =====
+    {
+        id: "P107",
+        points: [[360, 60], [500, 60], [500, 150], [360, 150]],
+        label: { x: 430, y: 105 },
+    },
+    {
+        id: "P108",
+        points: [[360, 150], [500, 150], [500, 240], [360, 240]],
+        label: { x: 430, y: 195 },
+    },
+    {
+        id: "P109",
+        points: [
+            [360, 240],
+            [500, 240],
+            [500, 320],
+            [390, 320],
+            [390, 280],
+            [360, 280],
+        ],
+        label: { x: 430, y: 280 },
+    },
+    {
+        id: "P110",
+        points: [[360, 320], [500, 320], [500, 400], [360, 400]],
+        label: { x: 430, y: 360 },
+    },
+
+    // ===== RIGHT BOTTOM =====
+    {
+        id: "P111",
+        points: [[360, 400], [500, 400], [500, 500], [360, 500]],
+        label: { x: 430, y: 450 },
+    },
+    {
+        id: "P112",
+        points: [[360, 500], [500, 500], [500, 580], [360, 580]],
+        label: { x: 430, y: 540 },
+    },
+    {
+        id: "P113",
+        points: [[360, 580], [500, 580], [500, 660], [360, 660]],
+        label: { x: 430, y: 620 },
+    },
+    {
+        id: "P114",
+        points: [[360, 660], [500, 660], [500, 740], [360, 740]],
+        label: { x: 430, y: 700 },
+    },
+    {
+        id: "P115",
+        points: [[360, 740], [500, 740], [500, 820], [360, 820]],
+        label: { x: 430, y: 780 },
+    },
+
+    // ===== LEFT BOTTOM =====
+    {
+        id: "P119",
+        points: [[40, 580], [180, 580], [180, 660], [40, 660]],
+        label: { x: 110, y: 620 },
+    },
+    {
+        id: "P118",
+        points: [[40, 660], [180, 660], [180, 740], [40, 740]],
+        label: { x: 110, y: 700 },
+    },
+    {
+        id: "P117",
+        points: [[40, 740], [180, 740], [180, 820], [40, 820]],
+        label: { x: 110, y: 780 },
+    },
+    {
+        id: "P116",
+        points: [[40, 820], [180, 820], [180, 900], [40, 900]],
+        label: { x: 110, y: 860 },
+    },
+];
+
+/* ================== GEOMETRY HELPERS ================== */
+
+// điểm kết nối tại phòng (tách slot)
+function getRoomPort(room, systemKey) {
+    const xs = room.points.map(p => p[0]);
+    const ys = room.points.map(p => p[1]);
+
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const midY = (Math.min(...ys) + Math.max(...ys)) / 2;
+
+    const isLeft = maxX < MAIN_SHAFT_X;
+
+    return {
+        x: isLeft ? maxX : minX,
+        y: midY + SYSTEMS[systemKey].slot,
+        dir: isLeft ? -1 : 1,
+    };
+}
+
+// path elbow 90°
+function buildElbowPath(start, port) {
+    const midX = start.x + port.dir * 30;
+
+    return `
+        M ${start.x} ${start.y}
+        L ${midX} ${start.y}
+        L ${midX} ${port.y}
+        L ${port.x} ${port.y}
+    `;
+}
+
+
+/* ================== MAIN COMPONENT ================== */
 const System = () => {
-    /* ================== STATE ================== */
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [visibleSystems, setVisibleSystems] = useState({
         electric: true,
@@ -10,54 +220,11 @@ const System = () => {
     });
 
     const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: 600, h: 900 });
-    const [tooltip, setTooltip] = useState(null);
     const [isPanning, setIsPanning] = useState(false);
     const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+    const [tooltip, setTooltip] = useState(null);
 
-    /* ================== DATA ================== */
-    const SYSTEMS = {
-        electric: { color: "red", dash: "6,4", offset: -6, label: "Điện" },
-        ventilation: { color: "green", dash: "4,4", offset: 0, label: "Thông gió" },
-        water: { color: "blue", dash: "", offset: 6, label: "Nước" },
-    };
-
-    const rooms = [
-        { id: "P101", x: 40, y: 700, w: 120, h: 70 },
-        { id: "P102", x: 40, y: 610, w: 120, h: 70 },
-        { id: "P103", x: 40, y: 520, w: 120, h: 70 },
-        { id: "P111", x: 420, y: 700, w: 120, h: 70 },
-        { id: "P112", x: 420, y: 610, w: 120, h: 70 },
-        { id: "P113", x: 420, y: 520, w: 120, h: 70 },
-    ];
-
-    const mainShaftX = 300;
-
-    const connections = rooms.flatMap(room => {
-        const centerY = room.y + room.h / 2;
-        const roomEdgeX =
-            room.x < mainShaftX ? room.x + room.w : room.x;
-
-        return Object.keys(SYSTEMS).map(system => ({
-            roomId: room.id,
-            system,
-            points: [
-                [mainShaftX + SYSTEMS[system].offset, centerY],
-                [roomEdgeX, centerY],
-            ],
-        }));
-    });
-
-    /* ================== HANDLERS ================== */
-    const toggleSystem = sys =>
-        setVisibleSystems(s => ({ ...s, [sys]: !s[sys] }));
-
-    const zoom = factor =>
-        setViewBox(v => ({
-            ...v,
-            w: v.w * factor,
-            h: v.h * factor,
-        }));
-    
+    /* ================== PAN / ZOOM ================== */
     const onMouseDown = e => {
         setIsPanning(true);
         setPanStart({ x: e.clientX, y: e.clientY });
@@ -65,27 +232,19 @@ const System = () => {
 
     const onMouseMove = e => {
         if (!isPanning) return;
+        const dx = (panStart.x - e.clientX) * (viewBox.w / SVG_WIDTH);
+        const dy = (panStart.y - e.clientY) * (viewBox.h / SVG_HEIGHT);
 
-        const dx = (panStart.x - e.clientX) * (viewBox.w / 600);
-        const dy = (panStart.y - e.clientY) * (viewBox.h / 900);
-
-        setViewBox(v => ({
-            ...v,
-            x: v.x + dx,
-            y: v.y + dy,
-        }));
-
+        setViewBox(v => ({ ...v, x: v.x + dx, y: v.y + dy }));
         setPanStart({ x: e.clientX, y: e.clientY });
     };
-
-    const onMouseUp = () => setIsPanning(false);
 
     const onWheel = e => {
         e.preventDefault();
         const factor = e.deltaY > 0 ? 1.1 : 0.9;
-
         setViewBox(v => ({
-            ...v,
+            x: v.x + (v.w * (1 - factor)) / 2,
+            y: v.y + (v.h * (1 - factor)) / 2,
             w: v.w * factor,
             h: v.h * factor,
         }));
@@ -94,105 +253,110 @@ const System = () => {
     /* ================== RENDER ================== */
     return (
         <div>
-            {/* ===== CONTROLS ===== */}
-            <div style={{ marginBottom: 10 }}>
-                {Object.entries(SYSTEMS).map(([key, sys]) => (
-                    <label key={key} style={{ marginRight: 15 }}>
-                        <input
-                            type="checkbox"
-                            checked={visibleSystems[key]}
-                            onChange={() => toggleSystem(key)}
-                        />{" "}
-                        <span style={{ color: sys.color }}>{sys.label}</span>
-                    </label>
-                ))}
-
-                <button onClick={() => zoom(0.8)}>➕ Zoom</button>
-                <button onClick={() => zoom(1.25)} style={{ marginLeft: 5 }}>
-                    ➖ Zoom
-                </button>
-            </div>
+            {/* ===== TOGGLES ===== */}
+            {Object.entries(SYSTEMS).map(([k, s]) => (
+                <label key={k} style={{ marginRight: 15 }}>
+                    <input
+                        type="checkbox"
+                        checked={visibleSystems[k]}
+                        onChange={() =>
+                            setVisibleSystems(v => ({ ...v, [k]: !v[k] }))
+                        }
+                    />{" "}
+                    <span style={{ color: s.color }}>{s.label}</span>
+                </label>
+            ))}
 
             {/* ===== SVG ===== */}
             <svg
-                width="600"
-                height="900"
+                width={SVG_WIDTH}
+                height={SVG_HEIGHT}
                 viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`}
                 onMouseDown={onMouseDown}
                 onMouseMove={onMouseMove}
-                onMouseUp={onMouseUp}
-                onMouseLeave={onMouseUp}
+                onMouseUp={() => setIsPanning(false)}
+                onMouseLeave={() => setIsPanning(false)}
                 onWheel={onWheel}
-                style={{ cursor: isPanning ? "grabbing" : "grab" }}
+                style={{ border: "1px solid #ccc", cursor: "grab" }}
             >
-                {/* ===== MAIN SHAFT ===== */}
+                {/* ===== SHAFT ===== */}
                 {Object.entries(SYSTEMS).map(
-                    ([key, sys]) =>
-                        visibleSystems[key] && (
+                    ([k, s]) =>
+                        visibleSystems[k] && (
                             <line
-                                key={key}
-                                x1={mainShaftX + sys.offset}
-                                y1={50}
-                                x2={mainShaftX + sys.offset}
-                                y2={850}
-                                stroke={sys.color}
+                                key={k}
+                                x1={MAIN_SHAFT_X + s.offset}
+                                y1={40}
+                                x2={MAIN_SHAFT_X + s.offset}
+                                y2={880}
+                                stroke={s.color}
                                 strokeWidth={3}
-                                strokeDasharray={sys.dash}
+                                strokeDasharray={s.dash}
                             />
                         )
                 )}
 
                 {/* ===== CONNECTIONS ===== */}
-                {connections.map((c, i) => {
-                    const highlight = selectedRoom === c.roomId;
+                {ROOMS.flatMap(room =>
+                    (ROOM_SYSTEMS[room.id] || []).map(sys => {
+                        if (!visibleSystems[sys]) return null;
 
-                    if (!visibleSystems[c.system]) return null;
+                        const port = getRoomPort(room, sys);
+                        const start = {
+                            x: MAIN_SHAFT_X + SYSTEMS[sys].offset,
+                            y: port.y,
+                        };
 
-                    return (
-                        <polyline
-                            key={i}
-                            points={c.points.map(p => p.join(",")).join(" ")}
-                            fill="none"
-                            stroke={SYSTEMS[c.system].color}
-                            strokeWidth={highlight ? 4 : 2}
-                            strokeDasharray={SYSTEMS[c.system].dash}
-                            opacity={selectedRoom && !highlight ? 0.2 : 1}
-                            onMouseEnter={e =>
-                                setTooltip({
-                                    x: e.clientX,
-                                    y: e.clientY,
-                                    text: `${c.roomId} – ${SYSTEMS[c.system].label}`,
-                                })
-                            }
-                            onMouseLeave={() => setTooltip(null)}
-                        />
-                    );
-                })}
+                        return (
+                            <path
+                                key={`${room.id}-${sys}`}
+                                d={buildElbowPath(start, port)}
+                                fill="none"
+                                stroke={SYSTEMS[sys].color}
+                                strokeWidth={selectedRoom === room.id ? 4 : 2}
+                                strokeDasharray={SYSTEMS[sys].dash}
+                                strokeLinejoin="round"
+                                opacity={
+                                    selectedRoom && selectedRoom !== room.id
+                                        ? 0.2
+                                        : 1
+                                }
+                                onMouseEnter={e =>
+                                    setTooltip({
+                                        x: e.clientX,
+                                        y: e.clientY,
+                                        text: `${room.id} – ${SYSTEMS[sys].label}`,
+                                    })
+                                }
+                                onMouseLeave={() => setTooltip(null)}
+                            />
+                        );
+                    })
+                )}
 
                 {/* ===== ROOMS ===== */}
-                {rooms.map(room => (
+                {ROOMS.map(room => (
                     <g
                         key={room.id}
                         onClick={() => setSelectedRoom(room.id)}
                         style={{ cursor: "pointer" }}
                     >
-                        <rect
-                            x={room.x}
-                            y={room.y}
-                            width={room.w}
-                            height={room.h}
+                        <polygon
+                            points={room.points.map(p => p.join(",")).join(" ")}
                             fill={
-                                selectedRoom === room.id ? "#ffd966" : "#e6f0ff"
+                                selectedRoom === room.id
+                                    ? "#ffe082"
+                                    : "#e3f2fd"
                             }
-                            stroke="#7aa2ff"
+                            stroke="#1565c0"
                             strokeWidth={2}
                         />
                         <text
-                            x={room.x + room.w / 2}
-                            y={room.y + room.h / 2}
+                            x={room.label.x}
+                            y={room.label.y}
                             textAnchor="middle"
                             dominantBaseline="middle"
-                            fontSize={14}
+                            fontSize={13}
                         >
                             {room.id}
                         </text>
