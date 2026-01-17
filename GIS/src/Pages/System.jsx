@@ -80,6 +80,17 @@ const System = () => {
 
     const onMouseUp = () => setIsPanning(false);
 
+    const onWheel = e => {
+        e.preventDefault();
+        const factor = e.deltaY > 0 ? 1.1 : 0.9;
+
+        setViewBox(v => ({
+            ...v,
+            w: v.w * factor,
+            h: v.h * factor,
+        }));
+    };
+
     /* ================== RENDER ================== */
     return (
         <div>
@@ -111,6 +122,7 @@ const System = () => {
                 onMouseMove={onMouseMove}
                 onMouseUp={onMouseUp}
                 onMouseLeave={onMouseUp}
+                onWheel={onWheel}
                 style={{ cursor: isPanning ? "grabbing" : "grab" }}
             >
                 {/* ===== MAIN SHAFT ===== */}
