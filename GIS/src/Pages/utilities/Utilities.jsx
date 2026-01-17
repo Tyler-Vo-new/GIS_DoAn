@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import "../../Styles/Components/Utilities.css";
-import { deleteUtilityDevice, getUtilitiesData } from "../../Services/UtilitiesService";
+import {
+    deleteUtilityDevice,
+    getUtilitiesData,
+    updateUtilityDevice,
+} from "../../Services/UtilitiesService";
 import Button from "../../Components/Button";
 import Pagination from "../../Components/Pagination";
 import ConfirmDialog from "../../Components/ConfirmDialog";
 import UtilitiesTabs from "../../Components/UtilitiesTabs";
 import UtilitiesTable from "../../Components/UtilitiesTable";
+import DeviceEditModal from "../../Components/DeviceEditModal";
 import {
     FiPlus,
     FiDownload,
@@ -21,6 +26,7 @@ const Utilities = () => {
     });
     const [isLoading, setIsLoading] = useState(true);
     const [pendingDelete, setPendingDelete] = useState(null);
+    const [editingDevice, setEditingDevice] = useState(null);
 
     const tabs = [
         { id: "camera", label: "Camera" },
@@ -59,6 +65,7 @@ const Utilities = () => {
         active: { label: "Hoạt động", tone: "success" },
         maintenance: { label: "Bảo trì", tone: "warning" },
         error: { label: "Hỏng", tone: "danger" },
+        expired: { label: "Hết hạn", tone: "danger" },
     };
 
     const currentTab = tabs.find((tab) => tab.id === activeTab);
@@ -86,6 +93,10 @@ const Utilities = () => {
         setPendingDelete(item);
     };
 
+    const handleEditClick = (item) => {
+        setEditingDevice(item);
+    };
+
     const handleConfirmDelete = async () => {
         if (!pendingDelete) return;
         setIsLoading(true);
@@ -108,6 +119,27 @@ const Utilities = () => {
             setIsLoading(false);
             return;
         }
+        setDeviceData((prev) => ({
+            ...prev,
+            [activeTab]: data,
+        }));
+        setIsLoading(false);
+    };
+
+    const handleSaveEdit = async (formData) => {
+        if (!editingDevice) return;
+        setIsLoading(true);
+        await updateUtilityDevice({
+            deviceType: activeTab,
+            code: editingDevice.code,
+            updates: formData,
+        });
+        setEditingDevice(null);
+        const data = await getUtilitiesData({
+            deviceType: activeTab,
+            page: currentPage,
+            pageSize: 8,
+        });
         setDeviceData((prev) => ({
             ...prev,
             [activeTab]: data,
@@ -140,6 +172,7 @@ const Utilities = () => {
                     data={currentData}
                     isLoading={isLoading}
                     statusMap={statusMap}
+                    onEdit={handleEditClick}
                     onDelete={handleDeleteClick}
                 />
 
@@ -164,6 +197,13 @@ const Utilities = () => {
                 cancelText="Hủy"
                 onConfirm={handleConfirmDelete}
                 onCancel={() => setPendingDelete(null)}
+            />
+            <DeviceEditModal
+                open={Boolean(editingDevice)}
+                deviceType={activeTab}
+                device={editingDevice}
+                onSave={handleSaveEdit}
+                onClose={() => setEditingDevice(null)}
             />
         </div>
     );

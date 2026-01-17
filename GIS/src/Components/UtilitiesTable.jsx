@@ -2,7 +2,7 @@ import "../Styles/Components/UtilitiesTable.css";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import StatusTag from "./StatusTag";
 
-const UtilitiesTable = ({ data, isLoading, statusMap, onDelete }) => {
+const UtilitiesTable = ({ data, isLoading, statusMap, onEdit, onDelete }) => {
   return (
     <div className="utilities-table-card">
       <table className="utilities-table">
@@ -51,7 +51,11 @@ const UtilitiesTable = ({ data, isLoading, statusMap, onDelete }) => {
                   </td>
                   <td>
                     <div className="utilities-actions-cell">
-                      <button className="icon-btn edit" type="button">
+                      <button
+                        className="icon-btn edit"
+                        type="button"
+                        onClick={() => onEdit(item)}
+                      >
                         <FiEdit2 />
                       </button>
                       <button

@@ -61,7 +61,7 @@ const fireDevices = [
     floor: "B1",
     location: "Bãi xe khu B",
     range: "4m",
-    status: "error",
+    status: "expired",
   },
   {
     code: "FIR009",
