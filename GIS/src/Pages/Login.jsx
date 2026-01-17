@@ -29,7 +29,7 @@ const Login = () => {
                 {/* <p className="login-subtitle">Đăng nhập</p> */}
                 <br />
                 <br />
-                <form className="login-form">
+                <form className="login-form" onSubmit={handleLogin}>
                     <div className="form-group">
                         <label>Email hoặc Tên đăng nhập</label>
                         <input
@@ -53,7 +53,7 @@ const Login = () => {
 
                     <br/>
 
-                    <button className="btn-login" onClick={handleLogin}>Đăng nhập</button>
+                    <button className="btn-login" type="submit">Đăng nhập</button>
 
                     <p className="login-register">
                         Bạn chưa có tài khoản? <a href="/register">Tạo tài khoản</a>
