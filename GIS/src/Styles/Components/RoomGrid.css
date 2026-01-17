@@ -1,0 +1,114 @@
+/* Grid layout */
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+/* Card */
+.room-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.room-card {
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.room-card:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+
+/* Header */
+.room-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.room-card-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.room-status {
+    color: #8a8a8a;
+    font-weight: 400;
+}
+
+/* Icons */
+.room-actions {
+    display: flex;
+    gap: 8px;
+    color: #a0a0a0;
+}
+
+/* Description */
+.room-desc {
+    margin-top: 8px;
+    color: #6b6b6b;
+    font-size: 14px;
+}
+
+/* Tags */
+.room-tags {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tag {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Tag colors */
+.tag-Ban-công {
+    background: #eef2ff;
+    color: #6366f1;
+}
+
+.tag-Full-nội-thất {
+    background: #e0f7fa;
+    color: #06b6d4;
+}
+
+.tag-Cửa-sổ-trời {
+    background: #e8f5e9;
+    color: #22c55e;
+}
+
+.tag-Máy-nóng-lạnh {
+    background: #fdecea;
+    color: #ef4444;
+}
+
+.tag-Có-gác {
+    background: #fff3e0;
+    color: #f97316;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .room-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .room-grid {
+        grid-template-columns: 1fr;
+    }
+}
