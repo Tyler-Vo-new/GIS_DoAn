@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 import { AuthProvider } from "./Context/AuthContext";
 import NavBar_Admin from "./Components/NavBar_Admin";
-import NavBar_User from "./Components/NavBar_User";
 import StatusBar from "./Components/StatusBar";
 import Map from "./Pages/Map";
 import Search from "./Pages/Search";
@@ -24,8 +23,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <div className="pageContainer">
-            <NavBar_User />
-            {/* <NavBar_Admin /> */}
+            <NavBar_Admin />
           <div className="mainWrapper">
               <StatusBar page="Trang chủ" />
               <main>
