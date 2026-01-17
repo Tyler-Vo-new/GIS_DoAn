@@ -189,7 +189,7 @@ const Utilities = () => {
                         <Button variant="primary" onClick={handleAddClick}>
                             <FiPlus /> Thêm mới
                         </Button>
-                        <Button>
+                        <Button variant="primary">
                             <FiDownload /> Tải về
                         </Button>
                     </div>
