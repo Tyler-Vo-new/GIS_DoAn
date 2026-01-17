@@ -2,10 +2,10 @@ import cameraDevices from "./dummy/cameraDevices";
 import sensorDevices from "./dummy/sensorDevices";
 import fireDevices from "./dummy/fireDevices";
 
-const devicesByType = {
-  camera: cameraDevices,
-  sensor: sensorDevices,
-  fire: fireDevices,
+let devicesByType = {
+  camera: [...cameraDevices],
+  sensor: [...sensorDevices],
+  fire: [...fireDevices],
 };
 
 const sleep = (ms) => new Promise((resolve) => {
@@ -29,4 +29,14 @@ export const getUtilitiesData = async ({ deviceType, page = 1, pageSize = 8 }) =
     pageSize,
     totalPages,
   };
+};
+
+export const deleteUtilityDevice = async ({ deviceType, code }) => {
+  await sleep(300);
+  const list = devicesByType[deviceType] ?? [];
+  devicesByType = {
+    ...devicesByType,
+    [deviceType]: list.filter((item) => item.code !== code),
+  };
+  return { success: true };
 };
