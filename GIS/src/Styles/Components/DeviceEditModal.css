@@ -4,38 +4,6 @@
   gap: 24px;
 }
 
-.edit-image-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  background: #f9fafb;
-}
-
-.edit-image-card img {
-  width: 120px;
-  height: 120px;
-  border-radius: 12px;
-  object-fit: cover;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-}
-
-.edit-upload {
-  font-size: 13px;
-  color: #2563eb;
-  font-weight: 600;
-}
-
-.edit-upload-hint {
-  font-size: 11px;
-  color: #9ca3af;
-  text-align: center;
-}
-
 .edit-form {
   display: flex;
   flex-direction: column;

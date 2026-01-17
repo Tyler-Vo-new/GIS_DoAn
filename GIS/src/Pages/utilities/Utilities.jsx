@@ -11,6 +11,7 @@ import ConfirmDialog from "../../Components/ConfirmDialog";
 import UtilitiesTabs from "../../Components/UtilitiesTabs";
 import UtilitiesTable from "../../Components/UtilitiesTable";
 import DeviceEditModal from "../../Components/DeviceEditModal";
+import { DEVICE_TABS, STATUS_TONE_MAP } from "../../Constants/utilitiesOptions";
 import {
     FiPlus,
     FiDownload,
@@ -28,11 +29,7 @@ const Utilities = () => {
     const [pendingDelete, setPendingDelete] = useState(null);
     const [editingDevice, setEditingDevice] = useState(null);
 
-    const tabs = [
-        { id: "camera", label: "Camera" },
-        { id: "sensor", label: "Cảm biến" },
-        { id: "fire", label: "Bình chữa cháy" },
-    ];
+    const tabs = DEVICE_TABS;
 
     const currentPage = pageByType[activeTab] ?? 1;
 
@@ -61,12 +58,7 @@ const Utilities = () => {
         };
     }, [activeTab, currentPage]);
 
-    const statusMap = {
-        active: { label: "Hoạt động", tone: "success" },
-        maintenance: { label: "Bảo trì", tone: "warning" },
-        error: { label: "Hỏng", tone: "danger" },
-        expired: { label: "Hết hạn", tone: "danger" },
-    };
+    const statusMap = STATUS_TONE_MAP;
 
     const currentTab = tabs.find((tab) => tab.id === activeTab);
     const currentTabData = deviceData[activeTab] ?? {};

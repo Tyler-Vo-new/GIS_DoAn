@@ -3,6 +3,12 @@ import "../Styles/Components/DeviceEditModal.css";
 import Modal from "./Modal";
 import Button from "./Button";
 import FormField from "./FormField";
+import ImageUpload from "./ImageUpload";
+import {
+  DEVICE_LABELS,
+  FLOOR_OPTIONS,
+  STATUS_OPTIONS_BY_TYPE,
+} from "../Constants/utilitiesOptions";
 
 const buildInitialState = (deviceType, device) => {
   const base = {
@@ -32,24 +38,6 @@ const buildInitialState = (deviceType, device) => {
   return base;
 };
 
-const statusOptionsByType = {
-  camera: [
-    { value: "active", label: "Hoạt động" },
-    { value: "maintenance", label: "Bảo trì" },
-    { value: "error", label: "Hỏng" },
-  ],
-  sensor: [
-    { value: "active", label: "Hoạt động" },
-    { value: "maintenance", label: "Bảo trì" },
-    { value: "error", label: "Hỏng" },
-  ],
-  fire: [
-    { value: "active", label: "Hoạt động" },
-    { value: "maintenance", label: "Bảo trì" },
-    { value: "expired", label: "Hết hạn" },
-  ],
-};
-
 const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
   const [formState, setFormState] = useState(() => buildInitialState(deviceType, device));
 
@@ -58,7 +46,7 @@ const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
   }, [deviceType, device]);
 
   const statusOptions = useMemo(
-    () => statusOptionsByType[deviceType] ?? statusOptionsByType.camera,
+    () => STATUS_OPTIONS_BY_TYPE[deviceType] ?? STATUS_OPTIONS_BY_TYPE.camera,
     [deviceType]
   );
 
@@ -74,12 +62,19 @@ const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
     onSave(formState);
   };
 
-  const imagePreview = formState.imageUrl || "https://via.placeholder.com/120x120.png?text=Device";
+  const deviceLabel = DEVICE_LABELS[deviceType] ?? "Thiết bị";
+
+  const handleImageChange = (url) => {
+    setFormState((prev) => ({
+      ...prev,
+      imageUrl: url,
+    }));
+  };
 
   return (
     <Modal
       open={open}
-      title={`Chỉnh sửa ${deviceType === "camera" ? "Camera" : deviceType === "sensor" ? "Cảm biến" : "Bình chữa cháy"}`}
+      title={`Chỉnh sửa ${deviceLabel}`}
       onClose={onClose}
       footer={
         <div className="edit-modal-footer">
@@ -93,11 +88,7 @@ const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
       }
     >
       <div className="edit-modal-grid">
-        <div className="edit-image-card">
-          <img src={imagePreview} alt="device" />
-          <div className="edit-upload">Tải ảnh lên hoặc kéo thả</div>
-          <span className="edit-upload-hint">Hỗ trợ SVG, PNG, JPG, GIF (tối đa 800 x 400 px)</span>
-        </div>
+        <ImageUpload value={formState.imageUrl} onChange={handleImageChange} />
 
         <div className="edit-form">
           <FormField label="Mã thiết bị" required>
@@ -125,14 +116,11 @@ const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
             </FormField>
             <FormField label="Tầng" required>
               <select className="edit-select" value={formState.floor} onChange={handleChange("floor")}>
-                <option value="B2">B2 - Tầng hầm 2</option>
-                <option value="B1">B1 - Tầng hầm 1</option>
-                <option value="T1">T1 - Tầng 1</option>
-                <option value="T2">T2 - Tầng 2</option>
-                <option value="T3">T3 - Tầng 3</option>
-                <option value="T4">T4 - Tầng 4</option>
-                <option value="T5">T5 - Tầng 5</option>
-                <option value="ST1">ST1 - Sân thượng</option>
+                {FLOOR_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </FormField>
           </div>
