@@ -1,19 +1,27 @@
+
 .utilities-tabs {
-  display: flex;
-  gap: 8px;
-  padding: 10px 0 18px;
+  display: inline-flex;
+  gap: 0;
+  padding: 10px 0 0;
+  border-bottom: 1px solid #d9dbe1;
 }
 
 .utilities-tab {
   min-width: 140px;
   padding: 10px 16px;
-  border-radius: 8px 8px 6px 6px;
+  border-radius: 8px 8px 0 0;
   border: 1px solid #d9dbe1;
+  border-bottom: none;
   background: #ffffff;
   color: #4b5563;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin-bottom: -1px;
+}
+
+.utilities-tab + .utilities-tab {
+  margin-left: -1px;
 }
 
 .utilities-tab.active {
