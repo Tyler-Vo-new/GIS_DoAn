@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import "../Styles/Components/DeviceEditModal.css";
 import Modal from "./Modal";
 import Button from "./Button";
@@ -42,11 +42,6 @@ const DeviceEditModal = ({ open, deviceType, device, mode = "edit", onSave, onCl
   const [formState, setFormState] = useState(() => buildInitialState(deviceType, device));
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFormState(buildInitialState(deviceType, device));
-    setErrors({});
-  }, [deviceType, device]);
 
   const statusOptions = useMemo(
     () => STATUS_OPTIONS_BY_TYPE[deviceType] ?? STATUS_OPTIONS_BY_TYPE.camera,

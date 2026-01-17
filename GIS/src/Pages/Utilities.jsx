@@ -226,6 +226,7 @@ const Utilities = () => {
                 onCancel={() => setPendingDelete(null)}
             />
             <DeviceEditModal
+                key={`${editMode}-${activeTab}-${editingDevice?.code ?? "new"}`}
                 open={Boolean(editingDevice)}
                 deviceType={activeTab}
                 device={editingDevice}
