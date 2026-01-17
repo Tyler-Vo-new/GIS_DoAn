@@ -43,6 +43,7 @@ const DeviceEditModal = ({ open, deviceType, device, mode = "edit", onSave, onCl
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormState(buildInitialState(deviceType, device));
     setErrors({});
   }, [deviceType, device]);
