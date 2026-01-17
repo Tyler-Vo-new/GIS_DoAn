@@ -1,0 +1,240 @@
+.login-container {
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-color: #eaf3ef;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    font-family: var(--default-font);
+    position: fixed;
+    top: 0;
+    left: 250px;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+}
+
+.login-card {
+    width: 420px;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 40px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    font-family: var(--default-font);
+    z-index: 1001;
+}
+
+.login-logo {
+    font-size: 42px;
+    text-align: center;
+    margin-bottom: 1px;
+    margin-top: -10px;
+}
+
+.login-card h2 {
+    text-align: center;
+    margin-bottom: 5px;
+    margin-top: -5px;
+    color: #1f2d3d;
+}
+
+/* .login-subtitle {
+    text-align: center;
+    color: #6b7280;
+    margin-bottom: 25px;
+} */
+
+.login-form .form-group {
+    margin-bottom: 18px;
+}
+
+.login-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+.login-remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #374151;
+}
+
+.login-remember input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.login-remember label {
+    cursor: pointer;
+    white-space: nowrap;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background: var(--default-color);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 16px;
+}
+
+.btn-login:hover {
+    background: #5a95de;
+}
+
+.login-register {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 18px;
+}
+
+.login-register a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.login-divider {
+    text-align: center;
+    margin: 15px 0;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.login-social {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.login-social button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-social button.facebook {
+    color: #1877f2;
+}
+
+.login-social button.google {
+    color: #db4437;
+}
+
+.login-social button:hover {
+    background: #f3f4f6;
+}
+
+/* Error messages */
+.error-message {
+    display: block;
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 4px;
+    margin-bottom: 10px;
+}
+
+.input-error {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
+
+/* Success Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 14px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-icon {
+    font-size: 60px;
+    color: #10b981;
+    margin-bottom: 15px;
+    animation: bounce 0.5s ease-out;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.modal-content h2 {
+    color: #1f2d3d;
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.modal-content p {
+    color: #6b7280;
+    margin: 8px 0;
+    font-size: 14px;
+}
