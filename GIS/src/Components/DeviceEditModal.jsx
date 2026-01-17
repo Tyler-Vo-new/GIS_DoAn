@@ -38,11 +38,13 @@ const buildInitialState = (deviceType, device) => {
   return base;
 };
 
-const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
+const DeviceEditModal = ({ open, deviceType, device, mode = "edit", onSave, onClose }) => {
   const [formState, setFormState] = useState(() => buildInitialState(deviceType, device));
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     setFormState(buildInitialState(deviceType, device));
+    setErrors({});
   }, [deviceType, device]);
 
   const statusOptions = useMemo(
@@ -56,9 +58,41 @@ const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
       ...prev,
       [field]: value,
     }));
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const validateForm = () => {
+    const nextErrors = {};
+
+    if (!formState.name.trim()) nextErrors.name = "Vui lòng nhập tên thiết bị";
+    if (!formState.location.trim()) nextErrors.location = "Vui lòng nhập vị trí";
+
+    if (deviceType === "fire") {
+      if (!formState.cylinderType.trim()) nextErrors.cylinderType = "Vui lòng nhập loại bình";
+      if (!formState.capacity.trim()) nextErrors.capacity = "Vui lòng nhập khối lượng/dung tích";
+      if (!formState.pressure.trim()) nextErrors.pressure = "Vui lòng nhập áp suất";
+      if (!formState.manufactureDate.trim()) nextErrors.manufactureDate = "Vui lòng chọn ngày sản xuất";
+      if (!formState.inspectionDate.trim()) nextErrors.inspectionDate = "Vui lòng chọn hạn kiểm định";
+    } else if (!formState.range.trim()) {
+      nextErrors.range = "Vui lòng nhập phạm vi quan sát";
+    }
+
+    if (!formState.status) nextErrors.status = "Vui lòng chọn trạng thái";
+
+    return nextErrors;
   };
 
   const handleSubmit = () => {
+    const nextErrors = validateForm();
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
     onSave(formState);
   };
 
@@ -71,10 +105,12 @@ const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
     }));
   };
 
+  const isCreate = mode === "create";
+
   return (
     <Modal
       open={open}
-      title={`Chỉnh sửa ${deviceLabel}`}
+      title={`${isCreate ? "Thêm mới" : "Chỉnh sửa"} ${deviceLabel}`}
       onClose={onClose}
       footer={
         <div className="edit-modal-footer">
@@ -82,7 +118,7 @@ const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
             Hủy
           </Button>
           <Button variant="primary" onClick={handleSubmit}>
-            Lưu
+            {isCreate ? "Tạo mới" : "Lưu"}
           </Button>
         </div>
       }
@@ -92,27 +128,49 @@ const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
 
         <div className="edit-form">
           <FormField label="Mã thiết bị" required>
-            <input className="edit-input" value={formState.code} disabled />
+            <input
+              className={`edit-input ${errors.code ? "has-error" : ""}`}
+              value={formState.code}
+              onChange={handleChange("code")}
+              disabled={!isCreate}
+              placeholder={isCreate ? "Ví dụ: CAM019" : ""}
+            />
           </FormField>
 
-          <FormField label="Tên thiết bị" required>
-            <input className="edit-input" value={formState.name} onChange={handleChange("name")} />
+          <FormField label="Tên thiết bị" required error={errors.name}>
+            <input
+              className={`edit-input ${errors.name ? "has-error" : ""}`}
+              value={formState.name}
+              onChange={handleChange("name")}
+            />
           </FormField>
 
           {deviceType === "fire" ? (
             <div className="edit-row">
-              <FormField label="Loại bình" required>
-                <input className="edit-input" value={formState.cylinderType} onChange={handleChange("cylinderType")} />
+              <FormField label="Loại bình" required error={errors.cylinderType}>
+                <input
+                  className={`edit-input ${errors.cylinderType ? "has-error" : ""}`}
+                  value={formState.cylinderType}
+                  onChange={handleChange("cylinderType")}
+                />
               </FormField>
-              <FormField label="Khối lượng/Dung tích" required>
-                <input className="edit-input" value={formState.capacity} onChange={handleChange("capacity")} />
+              <FormField label="Khối lượng/Dung tích" required error={errors.capacity}>
+                <input
+                  className={`edit-input ${errors.capacity ? "has-error" : ""}`}
+                  value={formState.capacity}
+                  onChange={handleChange("capacity")}
+                />
               </FormField>
             </div>
           ) : null}
 
           <div className="edit-row">
-            <FormField label="Vị trí" required>
-              <input className="edit-input" value={formState.location} onChange={handleChange("location")} />
+            <FormField label="Vị trí" required error={errors.location}>
+              <input
+                className={`edit-input ${errors.location ? "has-error" : ""}`}
+                value={formState.location}
+                onChange={handleChange("location")}
+              />
             </FormField>
             <FormField label="Tầng" required>
               <select className="edit-select" value={formState.floor} onChange={handleChange("floor")}>
@@ -126,9 +184,13 @@ const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
           </div>
 
           <div className="edit-row">
-            <FormField label={deviceType === "fire" ? "Áp suất (bar)" : "Phạm vi quan sát (mét)"} required>
+            <FormField
+              label={deviceType === "fire" ? "Áp suất (bar)" : "Phạm vi quan sát (mét)"}
+              required
+              error={deviceType === "fire" ? errors.pressure : errors.range}
+            >
               <input
-                className="edit-input"
+                className={`edit-input ${deviceType === "fire" ? (errors.pressure ? "has-error" : "") : (errors.range ? "has-error" : "")}`}
                 value={deviceType === "fire" ? formState.pressure : formState.range}
                 onChange={handleChange(deviceType === "fire" ? "pressure" : "range")}
               />
@@ -153,17 +215,17 @@ const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
 
           {deviceType === "fire" ? (
             <div className="edit-row">
-              <FormField label="Ngày sản xuất" required>
+              <FormField label="Ngày sản xuất" required error={errors.manufactureDate}>
                 <input
-                  className="edit-input"
+                  className={`edit-input ${errors.manufactureDate ? "has-error" : ""}`}
                   type="date"
                   value={formState.manufactureDate}
                   onChange={handleChange("manufactureDate")}
                 />
               </FormField>
-              <FormField label="Hạn kiểm định" required>
+              <FormField label="Hạn kiểm định" required error={errors.inspectionDate}>
                 <input
-                  className="edit-input"
+                  className={`edit-input ${errors.inspectionDate ? "has-error" : ""}`}
                   type="date"
                   value={formState.inspectionDate}
                   onChange={handleChange("inspectionDate")}
@@ -172,7 +234,7 @@ const DeviceEditModal = ({ open, deviceType, device, onSave, onClose }) => {
             </div>
           ) : null}
 
-          <FormField label="Trạng thái lối thoát" required>
+          <FormField label="Trạng thái lối thoát" required error={errors.status}>
             <div className="edit-radio-group">
               {statusOptions.map((option) => (
                 <label key={option.value} className="edit-radio">

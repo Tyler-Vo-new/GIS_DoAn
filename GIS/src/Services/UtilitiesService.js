@@ -28,6 +28,39 @@ const enrichFire = (item) => {
   };
 };
 
+const typePrefixMap = {
+  camera: "CAM",
+  sensor: "SEN",
+  fire: "FIR",
+};
+
+const generateNextCode = (deviceType) => {
+  const prefix = typePrefixMap[deviceType] ?? "DEV";
+  const list = devicesByType[deviceType] ?? [];
+  const maxNumber = list.reduce((maxValue, item) => {
+    const match = item.code?.match(/\d+/g);
+    const current = match ? parseInt(match.join(""), 10) : 0;
+    return Math.max(maxValue, Number.isNaN(current) ? 0 : current);
+  }, 0);
+  const nextNumber = String(maxNumber + 1).padStart(3, "0");
+  return `${prefix}${nextNumber}`;
+};
+
+const normalizeDevice = (deviceType, payload) => {
+  if (deviceType === "fire") {
+    return enrichFire({
+      ...payload,
+      range: payload.range ?? payload.pressure ?? payload.range,
+    });
+  }
+
+  const note = deviceType === "sensor"
+    ? "Cảm biến lắp đặt ngày 15/01/2024"
+    : "Camera lắp đặt ngày 15/01/2024";
+
+  return enrichCommon(payload, note);
+};
+
 let devicesByType = {
   camera: cameraDevices.map((item) => enrichCommon(item, "Camera lắp đặt ngày 15/01/2024")),
   sensor: sensorDevices.map((item) => enrichCommon(item, "Cảm biến lắp đặt ngày 15/01/2024")),
@@ -73,8 +106,8 @@ export const updateUtilityDevice = async ({ deviceType, code, updates }) => {
   const nextList = list.map((item) => {
     if (item.code !== code) return item;
     return {
-      ...item,
-      ...updates,
+      ...normalizeDevice(deviceType, item),
+      ...normalizeDevice(deviceType, updates),
     };
   });
   devicesByType = {
@@ -82,4 +115,19 @@ export const updateUtilityDevice = async ({ deviceType, code, updates }) => {
     [deviceType]: nextList,
   };
   return { success: true };
+};
+
+export const createUtilityDevice = async ({ deviceType, payload }) => {
+  await sleep(300);
+  const list = devicesByType[deviceType] ?? [];
+  const code = payload.code?.trim() ? payload.code.trim() : generateNextCode(deviceType);
+  const newItem = normalizeDevice(deviceType, {
+    ...payload,
+    code,
+  });
+  devicesByType = {
+    ...devicesByType,
+    [deviceType]: [newItem, ...list],
+  };
+  return { success: true, item: newItem };
 };

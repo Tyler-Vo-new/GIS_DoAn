@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "../Styles/Components/Utilities.css";
 import {
+    createUtilityDevice,
     deleteUtilityDevice,
     getUtilitiesData,
     updateUtilityDevice,
@@ -28,6 +29,7 @@ const Utilities = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [pendingDelete, setPendingDelete] = useState(null);
     const [editingDevice, setEditingDevice] = useState(null);
+    const [editMode, setEditMode] = useState("edit");
 
     const tabs = DEVICE_TABS;
 
@@ -86,7 +88,24 @@ const Utilities = () => {
     };
 
     const handleEditClick = (item) => {
+        setEditMode("edit");
         setEditingDevice(item);
+    };
+
+    const handleAddClick = () => {
+        setEditMode("create");
+        setEditingDevice({
+            code: "",
+            name: "",
+            location: "",
+            floor: "T1",
+            range: "",
+            coordinateX: "",
+            coordinateY: "",
+            status: "active",
+            note: "",
+            imageUrl: "",
+        });
     };
 
     const handleConfirmDelete = async () => {
@@ -121,15 +140,31 @@ const Utilities = () => {
     const handleSaveEdit = async (formData) => {
         if (!editingDevice) return;
         setIsLoading(true);
-        await updateUtilityDevice({
-            deviceType: activeTab,
-            code: editingDevice.code,
-            updates: formData,
-        });
+        const payload = activeTab === "fire"
+            ? { ...formData, range: formData.pressure ?? formData.range }
+            : formData;
+
+        if (editMode === "create") {
+            await createUtilityDevice({
+                deviceType: activeTab,
+                payload,
+            });
+            setPageByType((prev) => ({
+                ...prev,
+                [activeTab]: 1,
+            }));
+        } else {
+            await updateUtilityDevice({
+                deviceType: activeTab,
+                code: editingDevice.code,
+                updates: payload,
+            });
+        }
         setEditingDevice(null);
+        setEditMode("edit");
         const data = await getUtilitiesData({
             deviceType: activeTab,
-            page: currentPage,
+            page: editMode === "create" ? 1 : currentPage,
             pageSize: 8,
         });
         setDeviceData((prev) => ({
@@ -151,7 +186,7 @@ const Utilities = () => {
                 <div className="utilities-header">
                     <h2>Danh sách {currentTab?.label}</h2>
                     <div className="utilities-actions">
-                        <Button variant="primary">
+                        <Button variant="primary" onClick={handleAddClick}>
                             <FiPlus /> Thêm mới
                         </Button>
                         <Button>
@@ -194,6 +229,7 @@ const Utilities = () => {
                 open={Boolean(editingDevice)}
                 deviceType={activeTab}
                 device={editingDevice}
+                mode={editMode}
                 onSave={handleSaveEdit}
                 onClose={() => setEditingDevice(null)}
             />

@@ -28,6 +28,13 @@
   background: #ffffff;
 }
 
+.edit-input.has-error,
+.edit-select.has-error,
+.edit-textarea.has-error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
 .edit-input:disabled {
   background: #f3f4f6;
   color: #6b7280;
