@@ -1,0 +1,15 @@
+#root {
+  height: 100%;
+  width: 100%;
+  --default-font: "Inter", sans-serif;
+  --default-color: #186A99;
+}
+
+.pageContainer {
+  width: 100%;
+  height: auto;
+}
+
+.mainWrapper {
+  margin-left: 250px;
+}
