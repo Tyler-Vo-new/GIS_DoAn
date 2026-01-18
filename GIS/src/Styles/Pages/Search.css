@@ -23,10 +23,13 @@
     cursor: pointer;
     font-size: 16px;
     font-weight: 500;
-    color: #666;
+    color: #186A99;
     border-bottom: 3px solid transparent;
     transition: all 0.3s ease;
     font-family: var(--default-font);
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .searchTab:hover {
@@ -38,6 +41,14 @@
     color: var(--default-color);
     border-bottom-color: var(--default-color);
     font-weight: 600;
+    color: white;
+    background-color:#186A99;
+}
+
+.tabIcon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
 }
 
 /* =============== CONTENT LAYOUT =============== */
@@ -131,6 +142,31 @@
     border-color: var(--default-color);
     color: white;
     font-weight: 500;
+}
+
+/* Special colors for device filters */
+.filterBtn.filterActive:not(.active) {
+    background-color: #A3F4C3;
+    border-color: #A3F4C3;
+    color: #2e7d32;
+}
+
+.filterBtn.filterActive.active {
+    background-color: var(--default-color);
+    border-color: var(--default-color);
+    color: white;
+}
+
+.filterBtn.filterMaintenance:not(.active) {
+    background-color: #D1D1D1;
+    border-color: #D1D1D1;
+    color: #666;
+}
+
+.filterBtn.filterMaintenance.active {
+    background-color: var(--default-color);
+    border-color: var(--default-color);
+    color: white;
 }
 
 /* =============== ROOM CARDS =============== */
@@ -233,7 +269,7 @@
 }
 
 .routeInput {
-    width: 100%;
+    width: 96%;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -254,7 +290,8 @@
 }
 
 .quickOptionBtn {
-    padding: 6px 12px;
+    flex: 1;
+    padding: 8px 12px;
     border: 1px solid #ddd;
     background: white;
     border-radius: 6px;
@@ -262,11 +299,21 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: var(--default-font);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
 }
 
 .quickOptionBtn:hover {
     background-color: #f5f5f5;
     border-color: var(--default-color);
+}
+
+.quickOptionIcon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
 }
 
 .swapBtnWrapper {
@@ -282,17 +329,22 @@
     background: white;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    padding: 0;
 }
 
 .swapBtn:hover {
     background-color: var(--default-color);
-    color: white;
     border-color: var(--default-color);
+}
+
+.swapIcon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
 }
 
 .routeOptions {
@@ -312,10 +364,11 @@
     font-family: var(--default-font);
 }
 
-.checkboxLabel input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+.toggleIcon {
+    width: 45px;
+    height: 24px;
     cursor: pointer;
+    object-fit: contain;
 }
 
 .findRouteBtn {
@@ -419,10 +472,14 @@
 }
 
 .deviceTypeBtn {
+    width: 180px;
+    height: 92px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
-    padding: 15px;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
     background: white;
     border: 2px solid #e0e0e0;
     border-radius: 10px;
@@ -440,31 +497,33 @@
     border-color: var(--default-color);
 }
 
-.deviceTypeBtn.active .deviceIcon,
 .deviceTypeBtn.active .deviceTypeName,
 .deviceTypeBtn.active .deviceTypeCount {
     color: white;
 }
 
-.deviceIcon {
-    font-size: 28px;
-    color: var(--default-color);
+.deviceTypeIcon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
 }
 
 .deviceTypeInfo {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
+    align-items: center;
+    text-align: center;
 }
 
 .deviceTypeName {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: #333;
 }
 
 .deviceTypeCount {
-    font-size: 11px;
+    font-size: 10px;
     color: #999;
 }
 
@@ -593,19 +652,24 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     transition: all 0.2s ease;
+    padding: 8px;
 }
 
 .mapControlBtn:hover {
     background-color: var(--default-color);
-    color: white;
     border-color: var(--default-color);
     transform: scale(1.05);
+}
+
+.mapControlIcon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
 }
 
 /* =============== SCROLLBAR =============== */
@@ -649,5 +713,9 @@
 
     .deviceTypeButtons {
         grid-template-columns: 1fr;
+    }
+    
+    .deviceTypeBtn {
+        width: 100%;
     }
 }

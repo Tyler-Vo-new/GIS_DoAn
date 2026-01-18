@@ -1,12 +1,41 @@
 import { useState } from "react";
 import "../Styles/Pages/Search.css";
+
+// Import Tab Icons
+import timPhongBlack from "../assets/tim_phong_black.png";
+import timPhongWhite from "../assets/tim_phong_white.png";
+import timDuongBlack from "../assets/tim_duong_black.png";
+import timDuongWhite from "../assets/tim_duong_white.png";
+import cameraBlack from "../assets/camera_black.png";
+import cameraWhite from "../assets/camera_white.png";
+
+// Import Route Icons
+import currentLocationGrey from "../assets/current_location_grey.png";
+import roomGrey from "../assets/room_grey.png";
+import swapIcon from "../assets/swap.png";
+import toggleOn from "../assets/toggle_on.png";
+import toggleOff from "../assets/toggle_off.png";
+
+// Import Device Icons
+import exitBlue from "../assets/exit_blue.png";
+import exitWhite from "../assets/exit_white.png";
+import fireExtinguisherRed from "../assets/fire_extinguisher_red.png";
+import fireExtinguisherWhite from "../assets/fire_extinguisher_white.png";
+import cameraBlueDev from "../assets/camera_blue.png";
+import cameraWhiteDev from "../assets/camera_white.png";
+import sensorBlue from "../assets/sensor_blue.png";
+import sensorWhite from "../assets/sensor_white.png";
+
+// Import Map Controls
+import zoomIn from "../assets/zoom_in.png";
+import zoomOut from "../assets/zoom_out.png";
+import currentLocation from "../assets/current_location.png";
+import fullScreen from "../assets/full_screen.png";
+
+// Import Other Icons
 import { CiSearch } from "react-icons/ci";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { FaFireExtinguisher } from "react-icons/fa6";
-import { MdOutlineStairs } from "react-icons/md";
-import { BiCctv } from "react-icons/bi";
-import { LuRadio } from "react-icons/lu";
 import { IoMdCheckmark } from "react-icons/io";
 import { MdOutlineAccessTime } from "react-icons/md";
 
@@ -176,12 +205,16 @@ const Search = () => {
         return mockDevices[type]?.length || 0;
     };
 
-    const getDeviceIcon = (type) => {
+    const getDeviceIcon = (type, isActive) => {
         switch(type) {
-            case "stairs": return <MdOutlineStairs />;
-            case "extinguisher": return <FaFireExtinguisher />;
-            case "camera": return <BiCctv />;
-            case "sensor": return <LuRadio />;
+            case "stairs": 
+                return <img src={isActive ? exitWhite : exitBlue} alt="Exit" className="deviceTypeIcon" />;
+            case "extinguisher": 
+                return <img src={isActive ? fireExtinguisherWhite : fireExtinguisherRed} alt="Fire Extinguisher" className="deviceTypeIcon" />;
+            case "camera": 
+                return <img src={isActive ? cameraWhiteDev : cameraBlueDev} alt="Camera" className="deviceTypeIcon" />;
+            case "sensor": 
+                return <img src={isActive ? sensorWhite : sensorBlue} alt="Sensor" className="deviceTypeIcon" />;
             default: return null;
         }
     };
@@ -194,19 +227,34 @@ const Search = () => {
                     className={`searchTab ${activeTab === "phong" ? "active" : ""}`}
                     onClick={() => setActiveTab("phong")}
                 >
-                    📍 Phòng
+                    <img 
+                        src={activeTab === "phong" ? timPhongWhite : timPhongBlack} 
+                        alt="Phòng" 
+                        className="tabIcon"
+                    />
+                    <span>Phòng</span>
                 </button>
                 <button 
                     className={`searchTab ${activeTab === "duongdi" ? "active" : ""}`}
                     onClick={() => setActiveTab("duongdi")}
                 >
-                    🧭 Đường Đi
+                    <img 
+                        src={activeTab === "duongdi" ? timDuongWhite : timDuongBlack} 
+                        alt="Đường Đi" 
+                        className="tabIcon"
+                    />
+                    <span>Đường Đi</span>
                 </button>
                 <button 
                     className={`searchTab ${activeTab === "thietbi" ? "active" : ""}`}
                     onClick={() => setActiveTab("thietbi")}
                 >
-                    🔧 Thiết Bị
+                    <img 
+                        src={activeTab === "thietbi" ? cameraWhite : cameraBlack} 
+                        alt="Thiết Bị" 
+                        className="tabIcon"
+                    />
+                    <span>Thiết Bị</span>
                 </button>
             </div>
 
@@ -365,14 +413,22 @@ const Search = () => {
                                     className="routeInput"
                                 />
                                 <div className="quickOptions">
-                                    <button className="quickOptionBtn">📍 Vị Trí Hiện Tại</button>
-                                    <button className="quickOptionBtn">🏠 Phòng Tôi</button>
+                                    <button className="quickOptionBtn">
+                                        <img src={currentLocationGrey} alt="Location" className="quickOptionIcon" />
+                                        <span>Vị Trí Hiện Tại</span>
+                                    </button>
+                                    <button className="quickOptionBtn">
+                                        <img src={roomGrey} alt="Room" className="quickOptionIcon" />
+                                        <span>Phòng Tôi</span>
+                                    </button>
                                 </div>
                             </div>
 
                             {/* Swap Button */}
                             <div className="swapBtnWrapper">
-                                <button className="swapBtn">⇅</button>
+                                <button className="swapBtn">
+                                    <img src={swapIcon} alt="Swap" className="swapIcon" />
+                                </button>
                             </div>
 
                             {/* End Point */}
@@ -390,18 +446,20 @@ const Search = () => {
                             {/* Options */}
                             <div className="routeOptions">
                                 <label className="checkboxLabel">
-                                    <input
-                                        type="checkbox"
-                                        checked={shortestPath}
-                                        onChange={(e) => setShortestPath(e.target.checked)}
+                                    <img 
+                                        src={shortestPath ? toggleOn : toggleOff} 
+                                        alt="Toggle" 
+                                        className="toggleIcon"
+                                        onClick={() => setShortestPath(!shortestPath)}
                                     />
                                     <span>Ưu tiên đường ngắn nhất</span>
                                 </label>
                                 <label className="checkboxLabel">
-                                    <input
-                                        type="checkbox"
-                                        checked={avoidStairs}
-                                        onChange={(e) => setAvoidStairs(e.target.checked)}
+                                    <img 
+                                        src={avoidStairs ? toggleOn : toggleOff} 
+                                        alt="Toggle" 
+                                        className="toggleIcon"
+                                        onClick={() => setAvoidStairs(!avoidStairs)}
                                     />
                                     <span>Tránh cầu thang</span>
                                 </label>
@@ -442,7 +500,7 @@ const Search = () => {
                                     className={`deviceTypeBtn ${activeDeviceType === "stairs" ? "active" : ""}`}
                                     onClick={() => setActiveDeviceType("stairs")}
                                 >
-                                    <MdOutlineStairs className="deviceIcon" />
+                                    {getDeviceIcon("stairs", activeDeviceType === "stairs")}
                                     <div className="deviceTypeInfo">
                                         <span className="deviceTypeName">Thang Thoát Hiểm</span>
                                         <span className="deviceTypeCount">{getDeviceCount("stairs")} thiết bị</span>
@@ -452,7 +510,7 @@ const Search = () => {
                                     className={`deviceTypeBtn ${activeDeviceType === "extinguisher" ? "active" : ""}`}
                                     onClick={() => setActiveDeviceType("extinguisher")}
                                 >
-                                    <FaFireExtinguisher className="deviceIcon" />
+                                    {getDeviceIcon("extinguisher", activeDeviceType === "extinguisher")}
                                     <div className="deviceTypeInfo">
                                         <span className="deviceTypeName">Bình Chữa Cháy</span>
                                         <span className="deviceTypeCount">{getDeviceCount("extinguisher")} thiết bị</span>
@@ -462,7 +520,7 @@ const Search = () => {
                                     className={`deviceTypeBtn ${activeDeviceType === "camera" ? "active" : ""}`}
                                     onClick={() => setActiveDeviceType("camera")}
                                 >
-                                    <BiCctv className="deviceIcon" />
+                                    {getDeviceIcon("camera", activeDeviceType === "camera")}
                                     <div className="deviceTypeInfo">
                                         <span className="deviceTypeName">Camera</span>
                                         <span className="deviceTypeCount">{getDeviceCount("camera")} thiết bị</span>
@@ -472,7 +530,7 @@ const Search = () => {
                                     className={`deviceTypeBtn ${activeDeviceType === "sensor" ? "active" : ""}`}
                                     onClick={() => setActiveDeviceType("sensor")}
                                 >
-                                    <LuRadio className="deviceIcon" />
+                                    {getDeviceIcon("sensor", activeDeviceType === "sensor")}
                                     <div className="deviceTypeInfo">
                                         <span className="deviceTypeName">Cảm Biến</span>
                                         <span className="deviceTypeCount">{getDeviceCount("sensor")} thiết bị</span>
@@ -491,13 +549,13 @@ const Search = () => {
                                         Tất Cả
                                     </button>
                                     <button 
-                                        className={`filterBtn ${deviceFilter === "active" ? "active" : ""}`}
+                                        className={`filterBtn filterActive ${deviceFilter === "active" ? "active" : ""}`}
                                         onClick={() => setDeviceFilter("active")}
                                     >
                                         Hoạt Động
                                     </button>
                                     <button 
-                                        className={`filterBtn ${deviceFilter === "maintenance" ? "active" : ""}`}
+                                        className={`filterBtn filterMaintenance ${deviceFilter === "maintenance" ? "active" : ""}`}
                                         onClick={() => setDeviceFilter("maintenance")}
                                     >
                                         Bảo Trì
@@ -576,12 +634,20 @@ const Search = () => {
                 <div className="searchRightPanel">
                     <div className="mapPlaceholder">
                         <div className="mapControls">
-                            <button className="mapControlBtn">+</button>
-                            <button className="mapControlBtn">−</button>
-                            <button className="mapControlBtn">🧭</button>
-                            <button className="mapControlBtn">⛶</button>
+                            <button className="mapControlBtn">
+                                <img src={zoomIn} alt="Zoom In" className="mapControlIcon" />
+                            </button>
+                            <button className="mapControlBtn">
+                                <img src={zoomOut} alt="Zoom Out" className="mapControlIcon" />
+                            </button>
+                            <button className="mapControlBtn">
+                                <img src={currentLocation} alt="Current Location" className="mapControlIcon" />
+                            </button>
+                            <button className="mapControlBtn">
+                                <img src={fullScreen} alt="Full Screen" className="mapControlIcon" />
+                            </button>
                         </div>
-                        <p style={{ textAlign: "center", color: "#999", marginTop: "200px" }}>
+                        <p style={{ textAlign: "center", color: "#fff", marginTop: "200px", fontSize: "18px" }}>
                             Bản đồ 2D/3D sẽ hiển thị ở đây
                         </p>
                     </div>
