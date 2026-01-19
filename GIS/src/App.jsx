@@ -25,7 +25,7 @@ function App() {
         <div className="pageContainer">
             <NavBar_Admin />
           <div className="mainWrapper">
-              <StatusBar page="Trang chủ" />
+              <StatusBar />
               <main>
                 <Routes>
                   <Route path="/" element={<Map />} />
