@@ -1,0 +1,164 @@
+/* ===== SPACING TỔNG ===== */
+.room-sidebar {
+  padding: 18px 16px;
+}
+
+/* Header -> Search */
+.sidebar-header {
+  margin-bottom: 16px;
+}
+
+/* ===== SEARCH (REFINED) ===== */
+.search-wrapper {
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.search-wrapper input {
+  height: 36px;
+  padding: 0 12px 0 36px;
+
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+
+  font-size: 13.5px;
+  background: #f8fafc;
+
+  transition: 
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.search-wrapper input::placeholder {
+  color: #9ca3af;
+}
+
+.search-wrapper input:focus {
+  border-color: #14b8a6;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(20,184,166,0.12);
+}
+
+/* Icon */
+.search-icon {
+  left: 12px;
+  font-size: 13px;
+  color: #9ca3af;
+}
+.room-sidebar {
+  width: 300px;
+  height: 100vh;
+  background: #ffffff;
+  padding: 16px;
+  box-sizing: border-box;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== HEADER ===== */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #0f766e;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 14px;
+}
+
+/* ===== SEARCH ===== */
+.search-wrapper {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.search-wrapper input {
+  width: 80%;
+  padding: 9px 12px 9px 34px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  outline: none;
+  background: #f9fafb;
+}
+
+.search-wrapper input:focus {
+  border-color: #14b8a6;
+  background: #ffffff;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+/* ===== LIST ===== */
+.room-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+}
+
+/* ===== ITEM ===== */
+.room-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 6px;
+
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.room-item:hover {
+  background: #f1f5f9;
+}
+
+/* ACTIVE */
+.room-item.active {
+  background: #ecfeff;
+  border-left: 4px solid #14b8a6;
+}
+
+/* ROOM INFO */
+.room-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.room-code {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f766e;
+}
+
+.room-name {
+  font-size: 13px;
+  color: #374151;
+}
+
+/* ICON */
+.pin-icon {
+  color: #14b8a6;
+  font-size: 15px;
+}
+
+/* EMPTY */
+.empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #9ca3af;
+}

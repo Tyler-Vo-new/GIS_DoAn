@@ -1,12 +1,20 @@
+import RoomSidebar from "../Components/RoomSidebar";
 const Map = () => {
     return (
         <>
-           <iframe
-  src="/map.html"
-  width="100%"
-  height="600"
-  style={{ border: "none" }}
-/>
+            <div style={{ display: "flex" }} >
+            <RoomSidebar />
+            
+            <iframe
+            
+                src="/map.html"
+                width="100%"
+                height="800px"
+                style={{ border: "none" ,flex: 1, marginLeft: "100px"}}
+            />
+
+            </div>
+            
         </>
     );
 }

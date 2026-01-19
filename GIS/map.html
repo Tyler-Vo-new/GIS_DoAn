@@ -3,6 +3,7 @@
 
 <body>
   <script src="https://cdn.jsdelivr.net/npm/gojs@3.1.4/release/go-debug.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
   <div id="allSampleContent" class="p-4 w-full">
 
@@ -784,26 +785,26 @@
         );
 
         setTimeout(() => {
-  const md = myDiagram.model.modelData;
+          const md = myDiagram.model.modelData;
 
-  document.querySelectorAll('.control-panel button').forEach(btn => {
-    if (btn.getAttribute('onclick')?.includes('toggleFire')) {
-      toggleButton(btn, md.showFire);
-    }
-    if (btn.getAttribute('onclick')?.includes('toggleRoom')) {
-      toggleButton(btn, md.showRoom);
-    }
-    if (btn.getAttribute('onclick')?.includes('toggleExit')) {
-      toggleButton(btn, md.showExit);
-    }
-    if (btn.getAttribute('onclick')?.includes('toggleBounds')) {
-      toggleButton(btn, md.isBoundaryVisible);
-    }
-    if (btn.getAttribute('onclick')?.includes('toggleLinks')) {
-      toggleButton(btn, md.isLinkVisible);
-    }
-  });
-}, 0);
+          document.querySelectorAll('.control-panel button').forEach(btn => {
+            if (btn.getAttribute('onclick')?.includes('toggleFire')) {
+              toggleButton(btn, md.showFire);
+            }
+            if (btn.getAttribute('onclick')?.includes('toggleRoom')) {
+              toggleButton(btn, md.showRoom);
+            }
+            if (btn.getAttribute('onclick')?.includes('toggleExit')) {
+              toggleButton(btn, md.showExit);
+            }
+            if (btn.getAttribute('onclick')?.includes('toggleBounds')) {
+              toggleButton(btn, md.isBoundaryVisible);
+            }
+            if (btn.getAttribute('onclick')?.includes('toggleLinks')) {
+              toggleButton(btn, md.isLinkVisible);
+            }
+          });
+        }, 0);
 
       }
 
@@ -868,7 +869,26 @@
         myDiagram.model.setDataProperty(myDiagram.model.modelData, 'isLinkVisible', isVisible);
       }
 
-      
+      document
+        .querySelector(".floating-top-left .fa-list")
+        ?.parentElement.addEventListener("click", () => {
+          console.log("Toggle sidebar");
+        });
+
+      document
+        .querySelector(".floating-top-left .fa-eye")
+        ?.parentElement.addEventListener("click", () => {
+          console.log("Toggle visibility");
+        });
+
+      document.querySelectorAll(".ctrl-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".ctrl-btn")
+            .forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+        });
+      });
     </script>
 
     <div id="sample">
@@ -882,68 +902,144 @@
       </div>
       <br><br>
 
+      <div class="floating-controls">
 
+
+        <!-- 3D -->
+        <button class="ctrl-btn active" title="3D View">
+          <i class="fa-solid fa-cube"></i>
+        </button>
+      </div>
+      <div class="floating-top-left">
+        <!-- Toggle Sidebar / Rooms -->
+        <button class="ctrl-btn" title="Danh sách phòng">
+          <i class="fa-solid fa-layer-group"></i>
+        </button>
+
+        <!-- Eye / Visibility -->
+        <button class="ctrl-btn" title="Hiển thị">
+          <i class="fa-regular fa-eye"></i>
+        </button>
+      </div>
 
     </div>
 </body>
 
 </html>
 <style>
-/* ===== CONTROL PANEL ===== */
-.control-panel {
-  margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
+  /* ===== CONTROL PANEL ===== */
+  .control-panel {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 
-/* ===== BASE BUTTON ===== */
-.control-panel button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  /* ===== BASE BUTTON ===== */
+  .control-panel button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
 
-  border-radius: 12px;
-  border: 1px solid #dcdcdc;
-  background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #dcdcdc;
+    background: #ffffff;
 
-  cursor: pointer;
-  user-select: none;
+    cursor: pointer;
+    user-select: none;
 
-  transition: 
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    filter 0.15s ease,
-    background-color 0.15s ease;
-  
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      filter 0.15s ease,
+      background-color 0.15s ease;
 
-/* Hover */
-.control-panel button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
-}
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  }
 
-/* Active click */
-.control-panel button:active {
-  transform: translateY(0);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.12);
-}
+  /* Hover */
+  .control-panel button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  }
 
-/* ===== BRIGHTNESS MODE (JS ĐANG DÙNG) ===== */
-.control-panel button[style*="brightness(180%)"] {
-  background: #1976d2;
-  color: #ffffff;
-  border-color: #1976d2;
-  box-shadow: 0 6px 16px rgba(25,118,210,0.4);
-}
+  /* Active click */
+  .control-panel button:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  /* ===== BRIGHTNESS MODE (JS ĐANG DÙNG) ===== */
+  .control-panel button[style*="brightness(180%)"] {
+    background: #1976d2;
+    color: #ffffff;
+    border-color: #1976d2;
+    box-shadow: 0 6px 16px rgba(25, 118, 210, 0.4);
+  }
 
 
+  .floating-controls {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
 
+    display: flex;
+    gap: 14px;
+    z-index: 9999;
+  }
+
+  /* BUTTON */
+  .ctrl-btn {
+    width: 46px;
+    height: 46px;
+
+    border-radius: 50%;
+    border: none;
+    background: #ffffff;
+
+    color: #6b7280;
+    font-size: 17px;
+
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+
+  /* Hover */
+  .ctrl-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    color: #111827;
+  }
+
+  /* ACTIVE (3D) */
+  .ctrl-btn.active {
+    background: #f12beb;
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(212, 45, 212, 0.55);
+  }
+
+  .floating-top-left {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+
+    display: flex;
+    gap: 12px;
+    z-index: 9999;
+  }
 </style>
