@@ -42,19 +42,19 @@ import { MdOutlineAccessTime } from "react-icons/md";
 const Search = () => {
     // Tab management
     const [activeTab, setActiveTab] = useState("phong");
-    
+
     // Tìm phòng states
     const [searchRoomText, setSearchRoomText] = useState("");
     const [selectedFloor, setSelectedFloor] = useState("all");
     const [selectedStatus, setSelectedStatus] = useState("all");
     const [selectedRoomType, setSelectedRoomType] = useState("all");
-    
+
     // Tìm đường states
     const [startPoint, setStartPoint] = useState("");
     const [endPoint, setEndPoint] = useState("");
     const [shortestPath, setShortestPath] = useState(true);
     const [avoidStairs, setAvoidStairs] = useState(false);
-    
+
     // Tìm thiết bị states
     const [activeDeviceType, setActiveDeviceType] = useState("stairs");
     const [deviceFilter, setDeviceFilter] = useState("all");
@@ -183,11 +183,11 @@ const Search = () => {
     const getFilteredRooms = () => {
         return mockRooms.filter(room => {
             const matchSearch = room.id.toLowerCase().includes(searchRoomText.toLowerCase()) ||
-                              room.name.toLowerCase().includes(searchRoomText.toLowerCase());
+                room.name.toLowerCase().includes(searchRoomText.toLowerCase());
             const matchFloor = selectedFloor === "all" || room.floor === selectedFloor;
             const matchStatus = selectedStatus === "all" || room.status === selectedStatus;
             const matchType = selectedRoomType === "all" || room.type === selectedRoomType;
-            
+
             return matchSearch && matchFloor && matchStatus && matchType;
         });
     };
@@ -206,14 +206,14 @@ const Search = () => {
     };
 
     const getDeviceIcon = (type, isActive) => {
-        switch(type) {
-            case "stairs": 
+        switch (type) {
+            case "stairs":
                 return <img src={isActive ? exitWhite : exitBlue} alt="Exit" className="deviceTypeIcon" />;
-            case "extinguisher": 
+            case "extinguisher":
                 return <img src={isActive ? fireExtinguisherWhite : fireExtinguisherRed} alt="Fire Extinguisher" className="deviceTypeIcon" />;
-            case "camera": 
+            case "camera":
                 return <img src={isActive ? cameraWhiteDev : cameraBlueDev} alt="Camera" className="deviceTypeIcon" />;
-            case "sensor": 
+            case "sensor":
                 return <img src={isActive ? sensorWhite : sensorBlue} alt="Sensor" className="deviceTypeIcon" />;
             default: return null;
         }
@@ -223,35 +223,35 @@ const Search = () => {
         <div className="searchContainer">
             {/* Tabs */}
             <div className="searchTabs">
-                <button 
+                <button
                     className={`searchTab ${activeTab === "phong" ? "active" : ""}`}
                     onClick={() => setActiveTab("phong")}
                 >
-                    <img 
-                        src={activeTab === "phong" ? timPhongWhite : timPhongBlack} 
-                        alt="Phòng" 
+                    <img
+                        src={activeTab === "phong" ? timPhongWhite : timPhongBlack}
+                        alt="Phòng"
                         className="tabIcon"
                     />
                     <span>Phòng</span>
                 </button>
-                <button 
+                <button
                     className={`searchTab ${activeTab === "duongdi" ? "active" : ""}`}
                     onClick={() => setActiveTab("duongdi")}
                 >
-                    <img 
-                        src={activeTab === "duongdi" ? timDuongWhite : timDuongBlack} 
-                        alt="Đường Đi" 
+                    <img
+                        src={activeTab === "duongdi" ? timDuongWhite : timDuongBlack}
+                        alt="Đường Đi"
                         className="tabIcon"
                     />
                     <span>Đường Đi</span>
                 </button>
-                <button 
+                <button
                     className={`searchTab ${activeTab === "thietbi" ? "active" : ""}`}
                     onClick={() => setActiveTab("thietbi")}
                 >
-                    <img 
-                        src={activeTab === "thietbi" ? cameraWhite : cameraBlack} 
-                        alt="Thiết Bị" 
+                    <img
+                        src={activeTab === "thietbi" ? cameraWhite : cameraBlack}
+                        alt="Thiết Bị"
                         className="tabIcon"
                     />
                     <span>Thiết Bị</span>
@@ -261,7 +261,7 @@ const Search = () => {
             <div className="searchContent">
                 {/* Left Panel */}
                 <div className="searchLeftPanel">
-                    
+
                     {/* TAB: TÌM PHÒNG */}
                     {activeTab === "phong" && (
                         <div className="searchPhongTab">
@@ -281,31 +281,31 @@ const Search = () => {
                             <div className="filterGroup">
                                 <h4 className="filterTitle">Tầng</h4>
                                 <div className="filterButtons">
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedFloor === "all" ? "active" : ""}`}
                                         onClick={() => setSelectedFloor("all")}
                                     >
                                         Tất Cả
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedFloor === "1" ? "active" : ""}`}
                                         onClick={() => setSelectedFloor("1")}
                                     >
                                         Tầng 1
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedFloor === "2" ? "active" : ""}`}
                                         onClick={() => setSelectedFloor("2")}
                                     >
                                         Tầng 2
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedFloor === "3" ? "active" : ""}`}
                                         onClick={() => setSelectedFloor("3")}
                                     >
                                         Tầng 3
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedFloor === "4" ? "active" : ""}`}
                                         onClick={() => setSelectedFloor("4")}
                                     >
@@ -318,19 +318,19 @@ const Search = () => {
                             <div className="filterGroup">
                                 <h4 className="filterTitle">Trạng thái</h4>
                                 <div className="filterButtons">
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedStatus === "all" ? "active" : ""}`}
                                         onClick={() => setSelectedStatus("all")}
                                     >
                                         Tất Cả
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedStatus === "available" ? "active" : ""}`}
                                         onClick={() => setSelectedStatus("available")}
                                     >
                                         Còn Trống
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedStatus === "rented" ? "active" : ""}`}
                                         onClick={() => setSelectedStatus("rented")}
                                     >
@@ -343,25 +343,25 @@ const Search = () => {
                             <div className="filterGroup">
                                 <h4 className="filterTitle">Loại Phòng</h4>
                                 <div className="filterButtons">
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedRoomType === "all" ? "active" : ""}`}
                                         onClick={() => setSelectedRoomType("all")}
                                     >
                                         Tất Cả
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedRoomType === "1pn" ? "active" : ""}`}
                                         onClick={() => setSelectedRoomType("1pn")}
                                     >
                                         1PN
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedRoomType === "2pn" ? "active" : ""}`}
                                         onClick={() => setSelectedRoomType("2pn")}
                                     >
                                         2PN
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${selectedRoomType === "3pn" ? "active" : ""}`}
                                         onClick={() => setSelectedRoomType("3pn")}
                                     >
@@ -446,18 +446,18 @@ const Search = () => {
                             {/* Options */}
                             <div className="routeOptions">
                                 <label className="checkboxLabel">
-                                    <img 
-                                        src={shortestPath ? toggleOn : toggleOff} 
-                                        alt="Toggle" 
+                                    <img
+                                        src={shortestPath ? toggleOn : toggleOff}
+                                        alt="Toggle"
                                         className="toggleIcon"
                                         onClick={() => setShortestPath(!shortestPath)}
                                     />
                                     <span>Ưu tiên đường ngắn nhất</span>
                                 </label>
                                 <label className="checkboxLabel">
-                                    <img 
-                                        src={avoidStairs ? toggleOn : toggleOff} 
-                                        alt="Toggle" 
+                                    <img
+                                        src={avoidStairs ? toggleOn : toggleOff}
+                                        alt="Toggle"
                                         className="toggleIcon"
                                         onClick={() => setAvoidStairs(!avoidStairs)}
                                     />
@@ -496,7 +496,7 @@ const Search = () => {
                         <div className="searchThietBiTab">
                             {/* Device Type Buttons */}
                             <div className="deviceTypeButtons">
-                                <button 
+                                <button
                                     className={`deviceTypeBtn ${activeDeviceType === "stairs" ? "active" : ""}`}
                                     onClick={() => setActiveDeviceType("stairs")}
                                 >
@@ -506,7 +506,7 @@ const Search = () => {
                                         <span className="deviceTypeCount">{getDeviceCount("stairs")} thiết bị</span>
                                     </div>
                                 </button>
-                                <button 
+                                <button
                                     className={`deviceTypeBtn ${activeDeviceType === "extinguisher" ? "active" : ""}`}
                                     onClick={() => setActiveDeviceType("extinguisher")}
                                 >
@@ -516,7 +516,7 @@ const Search = () => {
                                         <span className="deviceTypeCount">{getDeviceCount("extinguisher")} thiết bị</span>
                                     </div>
                                 </button>
-                                <button 
+                                <button
                                     className={`deviceTypeBtn ${activeDeviceType === "camera" ? "active" : ""}`}
                                     onClick={() => setActiveDeviceType("camera")}
                                 >
@@ -526,7 +526,7 @@ const Search = () => {
                                         <span className="deviceTypeCount">{getDeviceCount("camera")} thiết bị</span>
                                     </div>
                                 </button>
-                                <button 
+                                <button
                                     className={`deviceTypeBtn ${activeDeviceType === "sensor" ? "active" : ""}`}
                                     onClick={() => setActiveDeviceType("sensor")}
                                 >
@@ -542,19 +542,19 @@ const Search = () => {
                             <div className="filterGroup">
                                 <h4 className="filterTitle">Bộ lọc</h4>
                                 <div className="filterButtons">
-                                    <button 
+                                    <button
                                         className={`filterBtn ${deviceFilter === "all" ? "active" : ""}`}
                                         onClick={() => setDeviceFilter("all")}
                                     >
                                         Tất Cả
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn filterActive ${deviceFilter === "active" ? "active" : ""}`}
                                         onClick={() => setDeviceFilter("active")}
                                     >
                                         Hoạt Động
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn filterMaintenance ${deviceFilter === "maintenance" ? "active" : ""}`}
                                         onClick={() => setDeviceFilter("maintenance")}
                                     >
@@ -565,31 +565,31 @@ const Search = () => {
 
                             <div className="filterGroup">
                                 <div className="filterButtons">
-                                    <button 
+                                    <button
                                         className={`filterBtn ${deviceFloorFilter === "all" ? "active" : ""}`}
                                         onClick={() => setDeviceFloorFilter("all")}
                                     >
                                         Tất Cả
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${deviceFloorFilter === "Tầng 1" ? "active" : ""}`}
                                         onClick={() => setDeviceFloorFilter("Tầng 1")}
                                     >
                                         Tầng 1
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${deviceFloorFilter === "Tầng 2" ? "active" : ""}`}
                                         onClick={() => setDeviceFloorFilter("Tầng 2")}
                                     >
                                         Tầng 2
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${deviceFloorFilter === "Tầng 3" ? "active" : ""}`}
                                         onClick={() => setDeviceFloorFilter("Tầng 3")}
                                     >
                                         Tầng 3
                                     </button>
-                                    <button 
+                                    <button
                                         className={`filterBtn ${deviceFloorFilter === "Tầng 4" ? "active" : ""}`}
                                         onClick={() => setDeviceFloorFilter("Tầng 4")}
                                     >
@@ -647,9 +647,12 @@ const Search = () => {
                                 <img src={fullScreen} alt="Full Screen" className="mapControlIcon" />
                             </button>
                         </div>
-                        <p style={{ textAlign: "center", color: "#fff", marginTop: "200px", fontSize: "18px" }}>
-                            Bản đồ 2D/3D sẽ hiển thị ở đây
-                        </p>
+                        <iframe
+  src="/map.html"
+  width="100%"
+  height="600"
+  style={{ border: "none" }}
+/>
                     </div>
                 </div>
             </div>

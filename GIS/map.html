@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/gojs@3.1.4/release/go-debug.js"></script>
+
+  <div id="allSampleContent" class="p-4 w-full">
+
+    <script id="code">
+      class Person {
+        pathId = 0;
+        static #nPeople = 0;
+        static activites = [];
+        currentLink = null;
+        currentFromNodeKey = null;
+        currentToNodeKey = null;
+
+
+        #activity = null;
+        #prevActivity = null;
+
+        speed = 75 + Math.random() * 50; // document units per seconds
+        dia = null;
+        number = -1;
+        data = {};
+        node = null;
+
+        constructor(diagram, color, startLoc, route = null) {
+          this.dia = diagram;
+          this.route = route;
+          this.routeIndex = 0;
+
+          this.startLoc = startLoc.copy();
+          this.goingHome = false;      // ⭐ THÊM
+          this.isHomeActivity = false; // ⭐ THÊM
+
+          this.number = Person.#nPeople++;
+
+          this.data = {
+            key: 'person' + this.number,
+            color,
+            loc: startLoc
+          };
+
+          diagram.model.addNodeData(this.data);
+          this.node = diagram.findNodeForKey(this.data.key);
+
+          // this.run();
+        }
+
+        run() {
+          const act = this.chooseNextActivity();
+          if (!act) return;
+
+          this.doActivity(() => {
+            this.run(); // đi tiếp activity sau
+          }, act);
+        }
+
+
+        // used for debugging
+        // str=activity name, idx=if multiple results which to look at, default 0
+        static findActivityForString(str, idx) {
+          str = str.toLowerCase();
+          return Person.activites.filter(act => act.name.toLowerCase() == str)[idx || 0];
+        }
+
+        // do specified activity, or a random one if none are specified
+        doActivity(onComplete, activity, idx) {
+          this.pathId++;
+          // get the activity, specified by string or activity object, otherwise pick a random one
+          const act =
+            (typeof activity == 'string' ? Person.findActivityForString(activity, idx) : activity) ||
+            this.pickRandomActivity();
+
+          const currentActivity = act;
+          const pid = this.pathId;
+
+          const toNodeData = {
+            key: `to_${this.number}_${pid}`,
+            loc: act.loc,
+            avoidable: true
+          };
+
+          const fromNodeData = {
+            key: `from_${this.number}_${pid}`,
+            loc: this.node.location,
+            avoidable: true
+          };
+
+          const linkData = {
+            from: fromNodeData.key,
+            to: toNodeData.key
+          };
+
+
+
+          // remove the old nodes if they are still present
+          if (this.dia.findNodeForKey(toNodeData.key)) {
+            const pre_existing = this.dia.findNodeForKey(toNodeData.key);
+            this.dia.remove(pre_existing);
+            const pre_existing2 = this.dia.findNodeForKey(fromNodeData.key);
+            this.dia.remove(pre_existing2);
+          }
+
+          const dir_dict = {
+            LEFT: go.Spot.Left,
+            RIGHT: go.Spot.Right,
+            UP: go.Spot.Top,
+            DOWN: go.Spot.Bottom
+          };
+
+          this.dia.model.addNodeData(toNodeData);
+          this.dia.model.addNodeData(fromNodeData);
+
+          // set toSpot and fromSpot so people go the correct direction more often
+          const toNode = this.dia.findNodeForKey(toNodeData.key);
+
+          // CHỈ SET toSpot KHI CÓ DIR HỢP LỆ
+          if (act.dir && dir_dict[act.dir]) {
+            toNode.toSpot = dir_dict[act.dir];
+          }
+          if (this.#prevActivity) {
+            this.dia.findNodeForKey(fromNodeData.key).fromSpot = dir_dict[this.#prevActivity.dir];
+          }
+
+
+
+
+          // create a link between hidden nodes at the current position and end position
+          this.dia.model.addLinkData(linkData);
+
+          if (this.currentLink) {
+            const oldFrom = this.dia.findNodeForKey(this.currentFromNodeKey);
+            const oldTo = this.dia.findNodeForKey(this.currentToNodeKey);
+
+            if (oldFrom) this.dia.remove(oldFrom);
+            if (oldTo) this.dia.remove(oldTo);
+            this.dia.remove(this.currentLink);
+
+            this.currentLink = null;
+          }
+
+
+          const link = this.dia.findLinkForData(linkData);
+
+          // follow the points in the link
+          let points;
+          const nextStep = i => {
+            if (i >= points.length) {
+
+
+              // "do" the activity (wait specified time)
+              setTimeout(
+                () => {
+                  this.completeActivity(currentActivity);
+                  if (onComplete) onComplete(currentActivity); // call the callback function if one is supplied
+                },
+                currentActivity.time * 1000 * 0.4 * (Math.random() + 0.5)
+              );
+              return;
+            }
+
+            this.currentFromNodeKey = fromNodeData.key;
+            this.currentToNodeKey = toNodeData.key;
+            this.currentLink = link;
+            // animate the motion between link points
+            const anim = new go.Animation();
+            anim.add(this.node, 'location', this.node.location, points[i]);
+            anim.easing = go.Animation.EaseLinear;
+            let dur =
+              (Math.sqrt(this.node.location.distanceSquaredPoint(points[i])) / this.speed) * 1000;
+            anim.duration = dur >= 1 ? dur : 1;
+            anim.finished = () => nextStep(++i);
+            anim.start();
+          };
+
+          // this makes sure the router finished before looking at the link points
+          window.requestAnimationFrame(() => {
+            points = [...link.points.iterator];
+            points.push(toNodeData.loc);
+            nextStep(0);
+          });
+        }
+
+        pickRandomActivity() {
+          let act = null;
+          do {
+            act = Person.activites[parseInt(Math.random() * Person.activites.length)];
+          } while (!act.isOpen || this.#prevActivity == act || this.#prevActivity?.name == act?.name);
+
+          this.#activity = act;
+          this.#activity.isOpen = false;
+          return this.#activity;
+        }
+
+        completeActivity(activity) {
+          if (!activity) return;
+
+          // home activity giả → không làm gì
+          if (activity.name === '__home__') {
+            this.#activity = null;
+            this.#prevActivity = null;
+            return;
+          }
+
+          activity.isOpen = true;
+          this.#prevActivity = activity;
+          this.#activity = null;
+        }
+
+        chooseNextActivity() {
+          if (this.goingHome) {
+            this.goingHome = false;
+
+            return {
+              name: '__home__',
+              loc: this.startLoc,
+              time: 0,
+              dir: 'UP',
+              isOpen: true
+            };
+          }
+
+          if (this.route && this.route.length > 0) {
+            const name = this.route[this.routeIndex];
+            const act = Person.activites.find(a => a.name === name && a.isOpen);
+
+            this.routeIndex = (this.routeIndex + 1) % this.route.length;
+
+            if (act) {
+              act.isOpen = false;
+              this.goingHome = true;
+              return act;
+            }
+          }
+
+          return this.pickRandomActivity();
+        }
+
+        goToActivity(activity) {
+          if (!activity) return;
+          if (!activity.isOpen) return;
+
+          this.#activity = activity;
+          activity.isOpen = false;
+
+          this.doActivity(null, activity);
+        }
+      }
+
+      const houseBounds = [
+        // main house bounds
+        { angle: 0, x: 540, y: 110, width: 250, height: 30 },
+        { angle: 0, x: 760, y: 130, width: 30, height: 430 },
+        { angle: 0, x: 20, y: 540, width: 370, height: 20 },
+        { angle: 0, x: 20, y: 120, width: 20, height: 420 },
+        { angle: 0, x: 20, y: 80, width: 80, height: 50 },
+        { angle: 0, x: 270, y: 90, width: 270, height: 80 },
+        { angle: 0, x: 130, y: 10, width: 110, height: 30 },
+        { angle: 53, x: 245, y: 2, width: 110, height: 30 },
+        { angle: 303, x: 70, y: 90, width: 100, height: 30 },
+        { angle: 0, x: 290, y: 170, width: 10, height: 240 },
+        { angle: 0, x: 300, y: 360, width: 30, height: 10 },
+        { angle: 0, x: 370, y: 360, width: 200, height: 10 },
+        { angle: 0, x: 610, y: 360, width: 160, height: 10 },
+        { angle: 0, x: 530, y: 370, width: 10, height: 170 },
+        { angle: 0, x: 290, y: 440, width: 10, height: 100 },
+        { angle: 0, x: 230, y: 440, width: 60, height: 10 },
+        { angle: 0, x: 150, y: 440, width: 50, height: 10 },
+        { angle: 0, x: 150, y: 450, width: 10, height: 90 },
+        { angle: 0, x: 170, y: 340, width: 10, height: 60 },
+        { angle: 0, x: 40, y: 340, width: 130, height: 10 },
+        { angle: 0, x: 40, y: 300, width: 170, height: 10 },
+        { angle: 0, x: 250, y: 300, width: 40, height: 10 },
+        { angle: 0, x: 170, y: 430, width: 10, height: 11 },
+        { angle: 0, x: 440, y: 540, width: 320, height: 20 },
+        { angle: 0, x: 130, y: 170, width: 40, height: 130 },
+
+        // chairs
+        { angle: 0, x: 570, y: 200, width: 10, height: 60 },
+
+        // tables
+        { angle: 0, x: 350, y: 240, width: 80, height: 40 },
+        { angle: 0, x: 630, y: 210, width: 40, height: 40 },
+        { angle: 0, x: 160, y: 80, width: 50, height: 50 },
+
+        // activites
+        // { "angle": 0, "x": 163.66663074493408, "y": 507.3333282470703, "width": 10, "height": 10, "data": { "type": "interactable", "name": "toilet", "time": 15, "dir": "RIGHT" } }, 
+        // { "angle": 0, "x": 78.33332538604736, "y": 323.3333282470703, "width": 10, "height": 10, "data": { "type": "interactable", "name": "pantry", "time": 3, "dir": "RIGHT" } }, 
+        // { "angle": 0, "x": 256.20492238352756, "y": 501.9566044981982, "width": 10, "height": 10, "data": { "type": "interactable", "name": "sink", "time": 5, "dir": "LEFT" } },
+        // { "angle": 0, "x": 79.40614297593106, "y": 511.17083706622554, "width": 10, "height": 10, "data": { "type": "interactable", "name": "washer", "time": 15, "dir": "UP" } }, 
+        // { "angle": 0, "x": 52.915132075042955, "y": 510.5949804835129, "width": 10, "height": 10, "data": { "type": "interactable", "name": "dryer", "time": 15, "dir": "UP" } }, 
+        // { "angle": 0, "x": 63.857079383480226, "y": 240.50174043451716, "width": 10, "height": 10, "data": { "type": "interactable", "name": "oven", "time": 10, "dir": "RIGHT" } }, 
+        // { "angle": 0, "x": 632.3606159295472, "y": 460.8227113576087, "width": 10, "height": 10, "data": { "type": "interactable", "name": "chair", "time": 30, "dir": "LEFT" } },
+        // { "angle": 0, "x": 633.5123818194348, "y": 506.31817578842066, "width": 10, "height": 10, "data": { "type": "interactable", "name": "chair", "time": 30, "dir": "LEFT" } }, 
+        // { "angle": 0, "x": 583.4098011046093, "y": 236.65353268663625, "width": 10, "height": 10, "data": { "type": "interactable", "name": "chair", "time": 30, "dir": "RIGHT" } }, 
+        // { "angle": 0, "x": 583.0509459583972, "y": 213.7596303763082, "width": 10, "height": 10, "data": { "type": "interactable", "name": "chair", "time": 30, "dir": "RIGHT" } }, 
+        // { "angle": 0, "x": 629.5424521622729, "y": 163.2627625730647, "width": 10, "height": 10, "data": { "type": "interactable", "name": "chair", "time": 30, "dir": "DOWN" } }, 
+        // { "angle": 0, "x": 653.5933070668215, "y": 162.62140154911776, "width": 10, "height": 10, "data": { "type": "interactable", "name": "chair", "time": 30, "dir": "DOWN" } }, 
+        // { "angle": 0, "x": 62.13561526324199, "y": 188.17259680012856, "width": 10, "height": 10, "data": { "type": "interactable", "name": "sink", "time": 8, "dir": "RIGHT" } }
+
+        {
+          angle: 0,
+          x: 163.6666,
+          y: 507.3333,
+          width: 10,
+          height: 10,
+          data: {
+            id: "ACT001",
+            type: "interactable",
+            name: "Fire_extinguisher",
+            time: 15,
+            dir: "RIGHT",
+            status: "ok",
+            location: "S10.01 -  tầng 1 - khu A",
+            description: "Nhà vệ sinh nam tầng 1 khu A"
+          }
+        },
+        {
+          angle: 0,
+          x: 93.06,
+          y: 389.44,
+          width: 10,
+          height: 10,
+          data: {
+            id: "ACT002",
+            type: "interactable",
+            name: "Exit",
+            time: 3,
+            dir: "RIGHT",
+            status: "ok",
+            location: "S10.01 -  tầng 1 - khu A",
+            description: "Cửa thoát hiểm tầng 1 khu A"
+          }
+        },
+        {
+          angle: 0,
+          x: 256.2049,
+          y: 501.9566,
+          width: 10,
+          height: 10,
+          data: {
+            id: "ACT003",
+            type: "interactable",
+            name: "Fire_extinguisher",
+            time: 5,
+            dir: "LEFT",
+            status: "broken",
+            location: "S10.01 -  tầng 1 - khu B",
+            description: "Bộ chữa cháy tầng 1 khu B"
+          }
+        },
+        {
+          angle: 0,
+          x: 79.4061,
+          y: 511.1708,
+          width: 10,
+          height: 10,
+          data: {
+            id: "ACT004",
+            type: "interactable",
+            name: "Fire_extinguisher",
+            time: 15,
+            dir: "UP",
+            status: "ok",
+            location: "S10.01 -  tầng 1 - khu C",
+            description: "Bộ chữa cháy tầng 1 khu C"
+          }
+        },
+        {
+          angle: 0,
+          x: 352.9151,
+          y: 310.5950,
+          width: 10,
+          height: 10,
+          data: {
+            id: "ACT005",
+            type: "interactable",
+            name: "Exit",
+            time: 15,
+            dir: "UP",
+            status: "broken",
+            location: "S10.01 -  tầng 1 - khu C",
+            description: "Cửa thoát hiểm tầng 1 khu C"
+          }
+        },
+        {
+          angle: 0,
+          x: 63.8570,
+          y: 240.5017,
+          width: 10,
+          height: 10,
+          data: {
+            id: "ACT006",
+            type: "interactable",
+            name: "Exit",
+            time: 10,
+            dir: "RIGHT",
+            status: "ok",
+            location: "S10.01 -  tầng 2 - khu B",
+            description: "Cửa thoát hiểm tầng 2 khu B"
+          }
+        },
+        {
+          angle: 0,
+          x: 713.78,
+          y: 172.33,
+          width: 10,
+          height: 10,
+          data: {
+            id: "ACT007",
+            type: "interactable",
+            name: "Exit",
+            time: 30,
+            dir: "LEFT",
+            status: "ok",
+            location: "S10.01 -  tầng 2 - khu D",
+            description: "Cửa thoát hiểm tầng 2 khu D"
+          }
+        },
+
+
+        {
+          angle: 0,
+          x: 537.78,
+          y: 259.44,
+          width: 10,
+          height: 10,
+          data: {
+            id: "Room_001",
+            type: "interactable",
+            name: "Room",
+            time: 15,
+            dir: "UP",
+            status: "ok",
+            location: "S10.01 -  tầng 1 - khu A",
+            description: "Phòng Ăn"
+          }
+        },
+        {
+          angle: 0,
+          x: 720.89,
+          y: 415.89,
+          width: 10,
+          height: 10,
+          data: {
+            id: "Room_002",
+            type: "interactable",
+            name: "Room",
+            time: 15,
+            dir: "UP",
+            status: "ok",
+            location: "S10.01 -  tầng 1 - khu A",
+            description: "Phòng Khách"
+          }
+        },
+        {
+          angle: 0,
+          x: 205.33,
+          y: 176.78,
+          width: 10,
+          height: 10,
+          data: {
+            id: "Room_003",
+            type: "interactable",
+            name: "Room",
+            time: 15,
+            dir: "UP",
+            status: "ok",
+            location: "S10.01 -  tầng 1 - khu A",
+            description: "Phòng Bếp"
+          }
+        },
+      ];
+
+      function init() {
+        const activityTooltip =
+          new go.Adornment('Auto')
+            .add(
+              new go.Shape('RoundedRectangle', {
+                fill: '#f7f9f5',
+                stroke: '#cfd8dc',
+                strokeWidth: 1
+              })
+            )
+            .add(
+              new go.Panel('Vertical', { margin: 12, width: 280 })
+
+                // ===== HEADER =====
+                .add(
+                  new go.Panel('Horizontal', { stretch: go.Stretch.Horizontal })
+                    .add(
+                      new go.TextBlock({
+                        font: 'bold 14px sans-serif',
+                        stroke: '#333',
+                        wrap: go.Wrap.Fit,
+                        width: 200
+                      })
+                        .bind('text', '', d => `${d.name} (${d.id})`)
+                    )
+                    .add(
+                      new go.Shape('Circle', {
+                        width: 14,
+                        height: 14,
+                        margin: new go.Margin(0, 0, 0, 8)
+                      })
+                        .bind('fill', 'status', s =>
+                          s === 'ok' ? '#4caf50' : '#e53935'
+                        )
+                    )
+                )
+
+                // ===== STATUS =====
+                .add(
+                  new go.TextBlock()
+                    .bind('text', 'status', s =>
+                      `Status: ${s === 'ok' ? 'Hoạt động' : 'Hư hỏng'}`
+                    )
+                    .bind('stroke', 'status', s =>
+                      s === 'ok' ? '#2e7d32' : '#c62828'
+                    )
+                )
+
+                // ===== LOCATION =====
+                .add(
+                  new go.TextBlock('Location', {
+                    margin: new go.Margin(8, 0, 2, 0),
+                    font: 'bold 12px sans-serif',
+                    stroke: '#333'
+                  })
+                )
+                .add(
+                  new go.TextBlock({
+                    wrap: go.Wrap.Fit
+                  })
+                    .bind('text', 'locationText')
+                )
+
+                // ===== DESCRIPTION =====
+                .add(
+                  new go.TextBlock('Description', {
+                    margin: new go.Margin(8, 0, 2, 0),
+                    font: 'bold 12px sans-serif',
+                    stroke: '#333'
+                  })
+                )
+                .add(
+                  new go.TextBlock({
+                    wrap: go.Wrap.Fit,
+                    stroke: '#555'
+                  })
+                    .bind('text', 'description')
+                )
+            );
+
+
+
+
+        myDiagram = new go.Diagram('myDiagramDiv', {
+          'animationManager.isEnabled': true
+        });
+
+        // Create the Diagram's Model:
+        myDiagram.model = new go.GraphLinksModel([], []);
+        myDiagram.model.modelData = {
+          isLinkVisible: false,
+          showFire: true,
+          showExit: true,
+          showRoom: true,
+          isBoundaryVisible: false
+        };
+
+        myDiagram.linkTemplate =
+          new go.Link({
+            routing: go.Routing.AvoidsNodes, // this is what performs the "path finding"
+            pickable: false,
+            layername: 'Background'
+          })
+            .add(
+              new go.Shape({
+                name: 'SHAPE',
+                strokeWidth: 2,
+                strokeDashArray: [10, 6]
+              })
+                .bindObject('stroke', 'fromNode', fromNode => {
+                  if (!fromNode) return 'red'; // hoặc null
+
+                  const personKey = 'person' + fromNode.key.slice(4);
+                  const personNode = myDiagram.findNodeForKey(personKey);
+
+                  return personNode?.data?.color || 'red';
+                } // make the link the same color as the person
+                )
+                .bindModel('opacity', 'isLinkVisible', isVisible => isVisible ? 1 : 0)
+            );
+
+        // the background image, a floor plan
+        myDiagram.add(
+          new go.Part({
+            // this Part is not bound to any model data
+            width: 840,
+            height: 570,
+            layerName: 'Background',
+            position: new go.Point(0, 0),
+            selectable: false,
+            pickable: false,
+            avoidable: false
+          })
+            .add(
+              new go.Picture('https://upload.wikimedia.org/wikipedia/commons/9/9a/Sample_Floorplan.jpg')
+            )
+        );
+        const ACTIVITY_ICONS = {
+          Fire_extinguisher: 'https://cdn-icons-png.flaticon.com/512/2991/2991219.png',
+          Exit: 'data:image/png;base64,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',
+          sink: 'https://cdn-icons-png.flaticon.com/512/2933/2933820.png',
+          oven: 'https://cdn-icons-png.flaticon.com/512/1046/1046786.png',
+          chair: 'https://cdn-icons-png.flaticon.com/512/1046/1046792.png',
+          washer: 'https://cdn-icons-png.flaticon.com/512/2933/2933816.png',
+          dryer: 'https://cdn-icons-png.flaticon.com/512/2933/2933817.png',
+          Room: 'https://cdn-icons-png.flaticon.com/512/12396/12396772.png'
+        };
+
+
+
+        // the Node representation of an activity
+        myDiagram.nodeTemplateMap.add('activity',
+          new go.Node({
+            layerName: 'Background',
+            pickable: true,
+            cursor: 'pointer',
+            click: (e, node) => onActivityClick(node),
+            avoidable: false,
+            toolTip: activityTooltip
+          })
+            .bind('location')
+            .bind('angle')
+            .add(
+              new go.Panel('Spot')
+
+                // ===== VIỀN (CHỈ HIỆN KHI BROKEN) =====
+                .add(
+                  new go.Shape('Circle', {
+                    width: 30,
+                    height: 30,
+                    fill: null,
+                    strokeWidth: 4
+                  })
+                    .bind('stroke', 'status', s =>
+                      s === 'broken' ? '#e53935' : null
+                    ).bindObject('opacity', '', obj => {
+                      const data = obj.part.data;
+                      const md = obj.diagram.model.modelData;
+
+                      if (data.name === 'Fire_extinguisher') return md.showFire ? 1 : 0;
+                      if (data.name === 'Exit') return md.showExit ? 1 : 0;
+                      if (data.name === 'Room') return md.showRoom ? 1 : 0;
+                      return 0;
+                    })
+                )
+
+                // ===== ICON =====
+                .add(
+                  new go.Picture({
+                    width: 25,
+                    height: 25
+                  })
+                    .bind('source', 'name', name =>
+                      ACTIVITY_ICONS[name] || ACTIVITY_ICONS['chair']
+                    )
+                    .bindObject('opacity', '', obj => {
+                      const data = obj.part.data;
+                      const md = obj.diagram.model.modelData;
+
+                      if (data.name === 'Fire_extinguisher') return md.showFire ? 1 : 0;
+                      if (data.name === 'Exit') return md.showExit ? 1 : 0;
+                      if (data.name === 'Room') return md.showRoom ? 1 : 0;
+
+                      return 0;
+                    })
+                )
+            )
+        );
+
+
+        // the Node representation of a boundary
+        myDiagram.nodeTemplateMap.add('bound',
+          new go.Node({
+            layerName: 'Background',
+            pickable: false,
+            avoidable: true
+          })
+            .bind('location')
+            .bind('angle')
+            .add(
+              new go.Shape({
+                strokeWidth: 0,
+                fill: 'gray'
+              })
+                .bindModel('opacity', 'isBoundaryVisible', isVisible => isVisible ? 0.5 : 0)
+                .bind('width')
+                .bind('height')
+            )
+        );
+
+        // load all of the activites and boundaries
+        houseBounds.forEach(b => {
+          let nodeData = {
+            width: b.width,
+            height: b.height,
+            location: new go.Point(b.x, b.y),
+            angle: b.angle,
+            category: b.data?.type === 'interactable' ? 'activity' : 'bound',
+
+            // ===== COPY DATA CHO TOOLTIP =====
+            id: b.data?.id,
+            name: b.data?.name,
+            status: b.data?.status,
+            locationText: b.data?.location,   // đổi tên tránh trùng location (Point)
+            description: b.data?.description,
+
+            time: b.data?.time,
+            isOpen: true
+          };
+
+
+          if (b.data?.type == 'interactable') {
+            Person.activites.push(
+              Object.assign(
+                {
+                  isOpen: true,
+                  loc: new go.Point(b.x + b.width / 2, b.y + b.height / 2)
+                },
+                b.data
+              )
+            );
+          }
+
+          myDiagram.model.addNodeData(nodeData);
+        });
+
+        // default template for people
+        myDiagram.nodeTemplateMap.add('',
+          new go.Node({
+            locationSpot: go.Spot.Center,
+            avoidable: false,
+            layerName: 'Foreground'
+          })
+            .bindTwoWay('location', 'loc')
+            .bind('avoidable')
+            .bind('fromSpot')
+            .bind('toSpot')
+            .add(
+              new go.Shape('Ellipse', {
+                width: 18,
+                height: 18,
+                strokeWidth: 2
+              })
+                .bind('fill', 'color')
+                .bind('stroke', 'color', c => {
+                  if (!c || c == 'rgba(0,0,0,0)') return null;
+                  const br = typeof c == 'string' ? new go.Brush(c) : c;
+                  br.isDark() ? br.lightenBy(0.3) : br.darkenBy(0.2);
+                  return br;
+                })
+            )
+        );
+
+        myDiagram.addDiagramListener('ObjectSingleClicked', e => {
+          const pt = e.diagram.lastInput.documentPoint;
+          console.log(
+            'CLICK → x:', pt.x.toFixed(2),
+            'y:', pt.y.toFixed(2)
+          );
+        });
+
+
+
+        mainPerson = new Person(
+          myDiagram,
+          'red',
+          new go.Point(80, 520)
+        );
+
+        setTimeout(() => {
+  const md = myDiagram.model.modelData;
+
+  document.querySelectorAll('.control-panel button').forEach(btn => {
+    if (btn.getAttribute('onclick')?.includes('toggleFire')) {
+      toggleButton(btn, md.showFire);
+    }
+    if (btn.getAttribute('onclick')?.includes('toggleRoom')) {
+      toggleButton(btn, md.showRoom);
+    }
+    if (btn.getAttribute('onclick')?.includes('toggleExit')) {
+      toggleButton(btn, md.showExit);
+    }
+    if (btn.getAttribute('onclick')?.includes('toggleBounds')) {
+      toggleButton(btn, md.isBoundaryVisible);
+    }
+    if (btn.getAttribute('onclick')?.includes('toggleLinks')) {
+      toggleButton(btn, md.isLinkVisible);
+    }
+  });
+}, 0);
+
+      }
+
+      let mainPerson;
+      function onActivityClick(node) {
+
+
+        const act = Person.activites.find(
+          a => a.loc.distanceSquaredPoint(node.location) < 100 // ⭐ tolerance
+        );
+
+        if (!act) {
+          console.log('Không tìm thấy activity');
+          return;
+        }
+
+        mainPerson.goToActivity(act);
+      }
+
+
+      document.addEventListener('DOMContentLoaded', init);
+
+      function toggleButton(elem, isSelected) {
+        elem.style.filter = isSelected ? 'brightness(180%)' : '';
+      }
+
+      function toggleBounds(elem) {
+        isVisible = !myDiagram.model.modelData.isBoundaryVisible;
+        toggleButton(elem, isVisible);
+        myDiagram.model.setDataProperty(myDiagram.model.modelData, 'isBoundaryVisible', isVisible);
+      }
+
+      function toggleFire(elem) {
+        const md = myDiagram.model.modelData;
+        const isVisible = !md.showFire;
+
+        toggleButton(elem, isVisible);
+        myDiagram.model.setDataProperty(md, 'showFire', isVisible);
+      }
+
+      function toggleRoom(elem) {
+        const md = myDiagram.model.modelData;
+        const isVisible = !md.showRoom;
+
+        toggleButton(elem, isVisible);
+        myDiagram.model.setDataProperty(md, 'showRoom', isVisible);
+      }
+
+      function toggleExit(elem) {
+        const md = myDiagram.model.modelData;
+        const isVisible = !md.showExit;
+
+        toggleButton(elem, isVisible);
+        myDiagram.model.setDataProperty(md, 'showExit', isVisible);
+      }
+
+
+
+      function toggleLinks(elem) {
+        isVisible = !myDiagram.model.modelData.isLinkVisible;
+        toggleButton(elem, isVisible);
+        myDiagram.model.setDataProperty(myDiagram.model.modelData, 'isLinkVisible', isVisible);
+      }
+
+      
+    </script>
+
+    <div id="sample">
+      <div id="myDiagramDiv" style="border: solid 1px black; width: 100%; height: 720px"></div>
+      <div class="control-panel">
+        <button onclick="toggleBounds(this)">🧱 Boundaries</button>
+        <button onclick="toggleFire(this)">🔥 Bình cứu hỏa</button>
+        <button onclick="toggleRoom(this)">🏠 Phòng</button>
+        <button onclick="toggleExit(this)">🚪 Exit</button>
+        <button onclick="toggleLinks(this)">🧭 Đường đi</button>
+      </div>
+      <br><br>
+
+
+
+    </div>
+</body>
+
+</html>
+<style>
+/* ===== CONTROL PANEL ===== */
+.control-panel {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ===== BASE BUTTON ===== */
+.control-panel button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
+
+  border-radius: 12px;
+  border: 1px solid #dcdcdc;
+  background: #ffffff;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition: 
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease,
+    background-color 0.15s ease;
+  
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Hover */
+.control-panel button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+/* Active click */
+.control-panel button:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+}
+
+/* ===== BRIGHTNESS MODE (JS ĐANG DÙNG) ===== */
+.control-panel button[style*="brightness(180%)"] {
+  background: #1976d2;
+  color: #ffffff;
+  border-color: #1976d2;
+  box-shadow: 0 6px 16px rgba(25,118,210,0.4);
+}
+
+
+
+</style>

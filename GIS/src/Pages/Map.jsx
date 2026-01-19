@@ -1,7 +1,12 @@
 const Map = () => {
     return (
         <>
-            Thể hiện bản đồ
+           <iframe
+  src="/map.html"
+  width="100%"
+  height="600"
+  style={{ border: "none" }}
+/>
         </>
     );
 }
