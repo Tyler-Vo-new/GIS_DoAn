@@ -1,7 +1,8 @@
 #root {
   height: 100%;
   width: 100%;
-  --default-font: "Inter", sans-serif;
+  --default-font: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+  "Segoe UI", Roboto, Arial, sans-serif;
   --default-color: #186A99;
 }
 
@@ -12,4 +13,19 @@
 
 .mainWrapper {
   margin-left: 250px;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-family: var(--default-font);
+}
+
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+  font-size: inherit;
 }

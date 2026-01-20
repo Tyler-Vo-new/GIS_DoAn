@@ -1,0 +1,17 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pagination-btn.active {
+  color: #1f6fd6;
+}
+
+.pagination-btn.disabled {
+  color: #d1d5db;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f3f4f6;
+}
