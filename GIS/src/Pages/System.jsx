@@ -1,11 +1,14 @@
 import "../Styles/Pages/System.css";
 import { Gi3dStairs } from "react-icons/gi";
-import { useState, useMemo } from "react";
-import { FaBolt , FaFan, FaTint } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaBolt, FaFan, FaTint } from "react-icons/fa";
+import { getAllStorey, createFloor, getShaftsByStorey, getRoomsByStorey, updateConnection, updateShaft, getConnectionsByStorey, getRoomInfoById } from "../api.js";
+import SystemPopup from "../Components/SystemPopup.jsx";
+import SystemEditPopup from "../Components/SystemEditPopup.jsx";
 
 /* ================== SYSTEM DEFINITIONS ================== */
 const SYSTEMS = {
-    electric: {
+    electricity: {
         color: "#d32f2f",
         dash: "8,2",
         offset: -10,
@@ -38,151 +41,12 @@ function systemLabel(sys) {
     return SYSTEMS[sys]?.label || sys;
 }
 
-function storeyLabel(id) {
-    return STOREYS.find(s => s.id === id)?.label || id;
-}
 /* ================== STATUS ================== */
 const STATUS_STYLE = {
     active: { color: null, glow: null },
     maintenance: { color: "orange", glow: "orange" },
     error: { color: "#000", glow: "red" },
 };
-
-/* ================== SHAFT STATE (mock Django) ================== */
-const SHAFT_STATE = {
-    electric: "active",
-    ventilation: "active",
-    water: "active",
-}
-
-/* ================== ROOMS (POLYGONS) ================== */
-const ROOMS = [
-    {
-        id: "P106",
-        points: [[40, 60], [180, 60], [180, 150], [40, 150]],
-        label: { x: 110, y: 105 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P105",
-        points: [[40, 150], [180, 150], [180, 240], [40, 240]],
-        label: { x: 110, y: 195 },
-        systems: { electric: "active", water: "maintenance", ventilation: "active" },
-    },
-    {
-        id: "P104",
-        points: [[40, 240], [180, 240], [180, 280], [150, 280], [150, 320], [40, 320]],
-        label: { x: 110, y: 280 },
-        systems: { electric: "error", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P103",
-        points: [[40, 320], [180, 320], [180, 400], [40, 400]],
-        label: { x: 110, y: 360 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P102",
-        points: [[40, 400], [180, 400], [180, 480], [40, 480]],
-        label: { x: 110, y: 440 },
-        systems: { electric: "active", water: "active", ventilation: "maintenance" },
-    },
-    {
-        id: "P101",
-        points: [[40, 480], [180, 480], [180, 570], [40, 570]],
-        label: { x: 110, y: 525 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    
-    {
-        id: "P107",
-        points: [[360, 60], [500, 60], [500, 150], [360, 150]],
-        label: { x: 430, y: 105 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P108",
-        points: [[360, 150], [500, 150], [500, 240], [360, 240]],
-        label: { x: 430, y: 195 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P109",
-        points: [[360, 240], [500, 240], [500, 320], [390, 320], [390, 280], [360, 280]],
-        label: { x: 430, y: 280 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P110",
-        points: [[360, 320], [500, 320], [500, 400], [360, 400]],
-        label: { x: 430, y: 360 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-
-    {
-        id: "P111",
-        points: [[360, 400], [500, 400], [500, 500], [360, 500]],
-        label: { x: 430, y: 450 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P112",
-        points: [[360, 500], [500, 500], [500, 580], [360, 580]],
-        label: { x: 430, y: 540 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P113",
-        points: [[360, 580], [500, 580], [500, 660], [360, 660]],
-        label: { x: 430, y: 620 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P114",
-        points: [[360, 660], [500, 660], [500, 740], [360, 740]],
-        label: { x: 430, y: 700 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P115",
-        points: [[360, 740], [500, 740], [500, 820], [360, 820]],
-        label: { x: 430, y: 780 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-
-    {
-        id: "P119",
-        points: [[40, 580], [180, 580], [180, 660], [40, 660]], label: { x: 110, y: 620 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P118",
-        points: [[40, 660], [180, 660], [180, 740], [40, 740]],
-        label: { x: 110, y: 700 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P117",
-        points: [[40, 740], [180, 740], [180, 820], [40, 820]],
-        label: { x: 110, y: 780 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-    {
-        id: "P116",
-        points: [[40, 820], [180, 820], [180, 900], [40, 900]],
-        label: { x: 110, y: 860 },
-        systems: { electric: "active", water: "active", ventilation: "active" },
-    },
-];
-
-const STOREYS = [
-    { id: "B1", label: "Tầng hầm Tòa AB" },
-    { id: "F1", label: "Tầng 1 Tòa AB" },
-    { id: "F2", label: "Tầng 2 Tòa AB" },
-    { id: "F3", label: "Tầng 3 Tòa AB" },
-    { id: "F4", label: "Tầng 4 Tòa AB" },
-];
-
 
 /* ================== CORRIDOR ================== */
 const CORRIDOR = {
@@ -191,43 +55,6 @@ const CORRIDOR = {
     y1: 40,
     y2: 880,
 };
-
-const MAIN_SHAFT_X = (CORRIDOR.x1 + CORRIDOR.x2) / 2;
-
-/* ================== GEOMETRY HELPERS ================== */
-function getRoomPort(room, systemKey) {
-    const xs = room.points.map(p => p[0]);
-    const ys = room.points.map(p => p[1]);
-    const isLeft = Math.max(...xs) < MAIN_SHAFT_X;
-
-    return {
-        x: isLeft ? Math.max(...xs) : Math.min(...xs),
-        y: (Math.min(...ys) + Math.max(...ys)) / 2 + SYSTEMS[systemKey].slot,
-        dir: isLeft ? 1 : -1,
-    };
-}
-
-function getCorridorPort(room, systemKey) {
-    const ys = room.points.map(p => p[1]);
-    const isLeft = Math.max(...room.points.map(p => p[0])) < MAIN_SHAFT_X;
-
-    return {
-        x: isLeft ? CORRIDOR.x1 : CORRIDOR.x2,
-        y: (Math.min(...ys) + Math.max(...ys)) / 2 + SYSTEMS[systemKey].slot,
-        dir: isLeft ? 1 : -1,
-    };
-}
-
-function buildPath(roomPort, corridorPort, shaftX) {
-    const elbowX = corridorPort.x + corridorPort.dir * 20;
-    return `
-        M ${roomPort.x} ${roomPort.y}
-        L ${elbowX} ${roomPort.y}
-        L ${elbowX} ${corridorPort.y}
-        L ${corridorPort.x} ${corridorPort.y}
-        L ${shaftX} ${corridorPort.y}
-    `;
-}
 
 function resolveConnectionStatus(shaftStatus, roomStatus) {
     if (shaftStatus === "error") return "error";
@@ -246,13 +73,18 @@ function deriveShaftStatus(rooms, system) {
 /* ================== COMPONENT ================== */
 
 const System = () => {
-    const [selectedStorey, setSelectedStorey] = useState("F1");
+    const [storeys, setStoreys] = useState([]);
+
+    const [rooms, setRooms] = useState([]);
+    const [shafts, setShafts] = useState([]);
+    const [connections, setConnections] = useState([]);
+    const [selectedStorey, setSelectedStorey] = useState(null);
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [selectedSystem, setSelectedSystem] = useState(null);
     const [selectedConnection, setSelectedConnection] = useState(null);
 
     const [visibleSystems, setVisibleSystems] = useState({
-        electric: true,
+        electricity: true,
         ventilation: true,
         water: true,
     });
@@ -260,9 +92,50 @@ const System = () => {
     const [viewBox, setViewBox] = useState({ x: 0, y: 0, w: 600, h: 900 });
     const [panning, setPanning] = useState(false);
     const [panStart, setPanStart] = useState({ x: 0, y: 0 });
-
-    const shaftStatus = SHAFT_STATE;
     const [tooltip, setTooltip] = useState(null);
+    const [popup, setPopup] = useState(null);
+    const [editPopup, setEditPopup] = useState(null);
+
+    /* ================== LOAD FROM BACKEND ================== */
+    useEffect(() => {
+        async function loadStoreys() {
+            try {
+                const data = await getAllStorey();
+                setStoreys(data);
+                // auto chọn tầng đầu tiên (LƯU OBJECT)
+                if (data.length > 0) {
+                    setSelectedStorey(data[0].code); // ✅ object
+                }
+            } catch (err) {
+                console.error("Không load được storey", err);
+            }
+        }
+
+        loadStoreys();
+    }, []);
+
+
+    useEffect(() => { 
+        if (!selectedStorey) return;
+
+        getShaftsByStorey(selectedStorey)
+            .then(data => {
+                setShafts(data.shafts)
+            })
+            .catch(err => console.error("Không load được shaft", err));
+        
+        getRoomsByStorey(selectedStorey)
+            .then(data => {
+                setRooms(data.rooms)
+            })
+            .catch(err => console.error("Không load được rooms", err));
+        
+        getConnectionsByStorey(selectedStorey)
+            .then(data => {
+                setConnections(data.connections)
+            })
+            .catch(err => console.error("Không load được rooms", err));
+    }, [selectedStorey])
 
     /* ================== PAN / ZOOM ================== */
     const onMouseDown = e => {
@@ -289,7 +162,6 @@ const System = () => {
     const onMouseUp = () => setPanning(false);
 
     const onWheel = e => {
-        e.preventDefault();
         const factor = e.deltaY > 0 ? 1.1 : 0.9;
         setViewBox(v => ({
             x: v.x + (v.w * (1 - factor)) / 2,
@@ -306,6 +178,102 @@ const System = () => {
         setSelectedConnection(null);
     };
 
+    function getRoomSystemsStatus(roomId, connections) {
+        const result = {};
+
+        connections
+            .filter(c => c.room_id === roomId)
+            .forEach(c => {
+                result[c.system] = c.status;
+            });
+
+        return result;
+    }
+
+    function statusLabel(status) {
+        switch (status) {
+            case "active":
+                return "Hoạt động";
+            case "maintenance":
+                return "Bảo trì";
+            case "error":
+                return "Lỗi";
+            default:
+                return status;
+        }
+    }
+
+    function storeyLabel(code) {
+        return storeys.find(s => s.code === code)?.label || code;
+    }
+
+    async function systemPopupInfo(type, popup) {
+        let title = null;
+        let room = null;
+        let shaft = null;
+        let connection = null;
+        let s = systemLabel(popup["system"]);
+        if (type == "shaft") {
+            title = `Trục ${s} chính tầng ${selectedStorey} toà nhà AB`
+            shaft = popup.id;
+        } else {
+            room = await getRoomInfoById(popup.room_id);
+            title = `Trục ${s} chính tầng ${selectedStorey} nối Phòng ${room.code}`;
+            connection = popup.id
+        }
+        let statusV = statusLabel(popup.status);
+        return {
+            "title": title,
+            "storey": selectedStorey,
+            "room": room,
+            "systemE": popup.system,
+            "systemV": s,
+            "statusE": popup.status,
+            "statusV": statusV,
+            "shaft": shaft,
+            "connection": connection
+        }
+    }
+
+    async function handleReportIssue(data) {
+        if (data.shaft) {
+            await updateShaft(data.shaft, "maintenance");
+
+            setShafts(prev =>
+                prev.map(s =>
+                    s.id === data.shaft
+                        ? { ...s, status: "maintenance" }
+                        : s
+                )
+            );
+        }
+
+        if (data.connection) {
+            await updateConnection(data.connection, "maintenance");
+
+            setConnections(prev =>
+                prev.map(c =>
+                    c.id === data.connection
+                        ? { ...c, status: "maintenance" }
+                        : c
+                )
+            );
+        }
+
+        // update popup realtime
+        setPopup(prev => ({
+            ...prev,
+            data: {
+                ...prev.data,
+                statusE: "maintenance",
+                statusV: "Bảo trì"
+            }
+        }));
+    }
+
+
+
+
     return (
         <div className="sysWrapper">
             <div className="leftPanel">
@@ -319,16 +287,42 @@ const System = () => {
                 <div className="sSelection">
                     <h3>Danh sách Tầng</h3>
                     <ul className="storeyList">
-                        {STOREYS.map(storey => (
+                        {storeys.map(storey => (
                             <li
                                 key={storey.id}
-                                className={storey.id === selectedStorey ? "active" : ""}
-                                onClick={() => setSelectedStorey(storey.id)}
+                                className={storey.code === selectedStorey ? "active" : ""}
+                                onClick={() => {
+                                    clearSelection();
+                                    setSelectedStorey(storey.code)
+                                }}
                             >
                                 {storey.label}
                             </li>
                         ))}
                     </ul>
+
+                    <button
+                        style={{
+                            margin: "10px",
+                            padding: "8px 12px",
+                            background: "#1976d2",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                        }}
+                        onClick={async () => {
+                            if (!window.confirm("Tạo dữ liệu tầng + phòng + trục?")) return;
+                            try {
+                                await createFloor();
+                                alert("Tạo dữ liệu thành công. Reload để xem.");
+                            } catch (e) {
+                                alert("Lỗi tạo dữ liệu");
+                            }
+                        }}
+                    >
+                        ⚙️ Khởi tạo dữ liệu
+                    </button>
                 </div>
             </div>
 
@@ -392,49 +386,62 @@ const System = () => {
                     />
 
                     {/* ================== SHAFTS ================== */}
-                    {Object.entries(SYSTEMS).map(([sys, s]) => {
-                        if (!visibleSystems[sys]) return null;
+                    {shafts.map(shaft => {
+                        const s = SYSTEMS[shaft.system];
+                        if (!s) return null;                 // ✅
+                        if (!visibleSystems[shaft.system]) return null;
 
                         const active =
                             !selectedConnection &&
                             !selectedRoom &&
-                            selectedSystem === sys;
+                            selectedSystem === shaft.system;
 
-                        const style = STATUS_STYLE[shaftStatus[sys]];
+                        const style = STATUS_STYLE[shaft.status];
 
                         return (
-                            <g>
-                                {/* HIT AREA (vô hình nhưng dễ hover) */}
+                            <g key={shaft.id}>
+                                {/* HIT AREA */}
                                 <line
-                                    x1={MAIN_SHAFT_X + s.offset}
-                                    y1={40}
-                                    x2={MAIN_SHAFT_X + s.offset}
-                                    y2={880}
+                                    x1={shaft.x + s.offset}
+                                    y1={shaft.y1}
+                                    x2={shaft.x + s.offset}
+                                    y2={shaft.y2}
                                     stroke="transparent"
                                     strokeWidth={16}
                                     pointerEvents="stroke"
-                                    onClick={e => { e.stopPropagation(); setSelectedSystem(sys); setSelectedRoom(null); setSelectedConnection(null); }}
+                                    onClick={async e => {
+                                        e.stopPropagation();
+                                        clearSelection();
+                                        setSelectedSystem(shaft.system);
+                                        let data = await systemPopupInfo("shaft", shaft)
+                                        setPopup({
+                                            data: data
+                                        })
+                                    }}
                                     onMouseEnter={e => {
                                         setTooltip({
                                             x: e.clientX,
                                             y: e.clientY,
-                                            title: `Trục ${systemLabel(sys)} chính`,
+                                            title: `Trục ${systemLabel(shaft.system)}`,
                                             lines: [
                                                 `Tầng: ${storeyLabel(selectedStorey)}`,
-                                                `Tình trạng: ${shaftStatus[sys]}`
+                                                `Tình trạng: ${statusLabel(shaft.status)}`
                                             ]
                                         });
                                     }}
-                                    onMouseMove={e => { setTooltip(t => t && { ...t, x: e.clientX, y: e.clientY }); }}
+                                    onMouseMove={e => {
+                                        setTooltip(t => t && { ...t, x: e.clientX, y: e.clientY });
+                                    }}
                                     onMouseLeave={() => setTooltip(null)}
+
                                 />
 
                                 {/* LINE THẬT */}
                                 <line
-                                    x1={MAIN_SHAFT_X + s.offset}
-                                    y1={40}
-                                    x2={MAIN_SHAFT_X + s.offset}
-                                    y2={880}
+                                    x1={shaft.x + s.offset}
+                                    y1={shaft.y1}
+                                    x2={shaft.x + s.offset}
+                                    y2={shaft.y2}
                                     stroke={style.color || s.color}
                                     strokeWidth={active ? 6 : 3}
                                     strokeDasharray={s.dash}
@@ -450,97 +457,96 @@ const System = () => {
                     })}
 
                     {/* ================== CONNECTIONS ================== */}
-                    {ROOMS.flatMap(room =>
-                        Object.keys(SYSTEMS).map(sys => {
-                            if (!visibleSystems[sys]) return null;
+                    {connections.map(conn => {
+                        const sys = SYSTEMS[conn.system];
+                        if (!sys) return null;
+                        if (!visibleSystems[conn.system]) return null;
 
-                            const r = getRoomPort(room, sys);
-                            const c = getCorridorPort(room, sys);
-                            const shaftX = MAIN_SHAFT_X + SYSTEMS[sys].offset;
+                        const shaft = shafts.find(s => s.id === conn.shaft_id);
 
-                            const finalStatus = resolveConnectionStatus(
-                                shaftStatus[sys],
-                                room.systems[sys]
-                            );
+                        const resolvedStatus = resolveConnectionStatus(
+                            shaft?.status,
+                            conn.status
+                        );
 
-                            const isConnectionSelected =
-                                selectedConnection &&
-                                selectedConnection.roomId === room.id &&
-                                selectedConnection.system === sys;
+                        const style = STATUS_STYLE[resolvedStatus];
 
-                            const isRoomSelected =
-                                !selectedConnection && selectedRoom === room.id;
+                        const isConnectionSelected =
+                            selectedConnection?.id === conn.id;
 
-                            const isSystemSelected =
-                                !selectedConnection &&
-                                !selectedRoom &&
-                                selectedSystem === sys;
+                        const isRoomSelected =
+                            !selectedConnection && selectedRoom === conn.room_id;
 
-                            const active =
-                                isConnectionSelected ||
-                                isRoomSelected ||
-                                isSystemSelected;
+                        const isSystemSelected =
+                            !selectedConnection &&
+                            !selectedRoom &&
+                            selectedSystem === conn.system;
 
-                            const style = STATUS_STYLE[finalStatus];
+                        const active =
+                            isConnectionSelected || isRoomSelected || isSystemSelected;
 
-                            return (
-                                <path
-                                    key={`${room.id}-${sys}`}
-                                    d={buildPath(r, c, shaftX)}
-                                    fill="none"
-                                    stroke={style.color || SYSTEMS[sys].color}
-                                    strokeWidth={active ? 4 : 2}
-                                    strokeDasharray={SYSTEMS[sys].dash}
-                                    style={{
-                                        animation:
-                                            active && finalStatus === "active"
-                                                ? "flowDown 20s linear infinite"
+                        const d = conn.path
+                            .map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`)
+                            .join(" ");
+
+                        return (
+                            <path
+                                key={conn.id}
+                                d={d}
+                                fill="none"
+                                stroke={style.color || sys.color}
+                                strokeWidth={active ? 4 : 2}
+                                strokeDasharray={sys.dash}
+                                style={{
+                                    animation:
+                                        active && conn.status === "active"
+                                            ? "flowDown 20s linear infinite"
+                                            : "none",
+                                    filter:
+                                        isConnectionSelected
+                                            ? "drop-shadow(0 0 6px rgba(0,0,0,0.6))"
+                                            : style.glow
+                                                ? `drop-shadow(0 0 4px ${style.glow})`
                                                 : "none",
-                                        filter:
-                                            isConnectionSelected
-                                                ? "drop-shadow(0 0 6px rgba(0,0,0,0.6))"
-                                                : style.glow
-                                                    ? `drop-shadow(0 0 4px ${style.glow})`
-                                                    : "none",
-                                        opacity:
-                                            selectedConnection && !isConnectionSelected
-                                                ? 0.2
-                                                : 1,
-                                        cursor: "pointer",
-                                    }}
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        setSelectedConnection({
-                                            roomId: room.id,
-                                            system: sys,
-                                        });
-                                        setSelectedRoom(room.id);
-                                        setSelectedSystem(sys);
-                                    }}
-
-                                    onMouseEnter={e => {
-                                        setTooltip({
-                                            x: e.clientX,
-                                            y: e.clientY,
-                                            title: `Đường ${systemLabel(sys)}`,
-                                            lines: [
-                                                `Trục chính → ${room.id}`,
-                                                `Tầng: ${storeyLabel(selectedStorey)}`,
-                                                `Tình trạng: ${finalStatus}`
-                                            ]
-                                        });
-                                    }}
-                                    onMouseMove={e => {
-                                        setTooltip(t => t && { ...t, x: e.clientX, y: e.clientY });
-                                    }}
-                                    onMouseLeave={() => setTooltip(null)}
-                                />
-                            );
-                        })
-                    )}
+                                    opacity:
+                                        selectedConnection && !isConnectionSelected
+                                            ? 0.2
+                                            : 1,
+                                    cursor: "pointer",
+                                }}
+                                onClick={async e => {
+                                    e.stopPropagation();
+                                    setSelectedConnection(conn);
+                                    setSelectedRoom(conn.room_id);
+                                    setSelectedSystem(conn.system); 
+                                    let data = await systemPopupInfo("connection", conn)
+                                    setPopup({
+                                        data: data
+                                    })
+                                    
+                                }}
+                                onMouseEnter={e => {
+                                    setTooltip({
+                                        x: e.clientX,
+                                        y: e.clientY,
+                                        title: `Đường ${systemLabel(conn.system)}`,
+                                        lines: [
+                                            `Room ID: ${conn.room_id}`,
+                                            `Tầng: ${storeyLabel(selectedStorey)}`,
+                                            `Tình trạng: ${statusLabel(conn.status)}`,
+                                        ],
+                                    });
+                                }}
+                                onMouseMove={e => {
+                                    setTooltip(t => t && { ...t, x: e.clientX, y: e.clientY });
+                                }}
+                                onMouseLeave={() => setTooltip(null)}
+                            />
+                        );
+                    })}
 
                     {/* ================== ROOMS ================== */}
-                    {ROOMS.map(room => (
+                    {rooms.map(room => (
                         <g
                             key={room.id}
                             onClick={e => {
@@ -549,12 +555,15 @@ const System = () => {
                                 setSelectedConnection(null);
                             }}
                             onMouseEnter={e => {
+                                const systemsStatus = getRoomSystemsStatus(room.id, connections);
+
                                 setTooltip({
                                     x: e.clientX,
                                     y: e.clientY,
-                                    title: `Phòng ${room.id}`,
-                                    lines: Object.entries(room.systems).map(
-                                        ([sys, st]) => `${systemLabel(sys)}: ${st}`
+                                    title: `Phòng ${room.code}`,
+                                    lines: Object.entries(systemsStatus).map(
+                                        ([sys, status]) =>
+                                            `${systemLabel(sys)}: ${statusLabel(status)}`
                                     )
                                 });
                             }}
@@ -567,13 +576,13 @@ const System = () => {
                                 strokeWidth={2}
                             />
                             <text
-                                x={room.label.x}
-                                y={room.label.y}
+                                x={room.label_x}
+                                y={room.label_y}
                                 textAnchor="middle"
                                 dominantBaseline="middle"
                                 fontSize={13}
                             >
-                                {room.id}
+                                {room.code}
                             </text>
                         </g>
                     ))}
@@ -604,7 +613,49 @@ const System = () => {
                         ))}
                     </div>
                 )}
+
+                
             </div>
+
+            <SystemPopup
+                popup={popup}
+                onClose={() => setPopup(null)}
+                onReport={handleReportIssue}
+                onEdit={(data) => {
+                    setEditPopup({
+                        id: data.shaft || data.connection,
+                        type: data.shaft ? "shaft" : "connection",
+                        data
+                    });
+                }}
+            />
+            
+            {editPopup && (
+                <SystemEditPopup
+                    popup={editPopup}
+                    onClose={() => setEditPopup(null)}
+                    onSubmit={async (status, note) => {
+                        if (editPopup.type === "shaft") {
+                            await updateShaft(editPopup.id, status, note);
+                            setShafts(prev =>
+                                prev.map(s =>
+                                    s.id === editPopup.id ? { ...s, status } : s
+                                )
+                            );
+                        } else {
+                            await updateConnection(editPopup.id, status, note);
+                            setConnections(prev =>
+                                prev.map(c =>
+                                    c.id === editPopup.id ? { ...c, status } : c
+                                )
+                            );
+                        }
+
+                        setEditPopup(null);
+                    }}
+                />
+            )}
+            
         </div>
     );
 };

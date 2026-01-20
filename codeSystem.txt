@@ -1,0 +1,19 @@
+CONNECTIONS
+
+{id: 33, 
+system: 'ventilation', 
+status: 'active', 
+note: null, 
+path: Array(5), …}
+
+
+SHAFT
+{id: 2, system: 'water', x: 270, y1: 40, y2: 900, …}
+id: 2
+note: null
+status: "active"
+system: "water"
+x: 270
+y1: 40
+y2: 900
+
