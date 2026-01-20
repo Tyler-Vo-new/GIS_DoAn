@@ -1,0 +1,62 @@
+.utilities-table-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.utilities-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.utilities-table thead {
+  background: #f8fafc;
+  color: #6b7280;
+}
+
+.utilities-table th,
+.utilities-table td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.utilities-table tbody tr:hover {
+  background: #f9fbff;
+}
+
+.utilities-empty {
+  text-align: center;
+  padding: 30px 16px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.utilities-table .mono {
+  font-family: "Inter", monospace;
+  font-weight: 600;
+  color: #1f2a5a;
+}
+
+.utilities-actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+}
+
+.icon-btn.edit {
+  color: #2563eb;
+}
+
+.icon-btn.delete {
+  color: #ef4444;
+}
