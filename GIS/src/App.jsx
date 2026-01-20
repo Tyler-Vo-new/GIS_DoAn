@@ -17,6 +17,7 @@ import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import Profile from "./Pages/Profile";
 import Exit from "./Pages/Exit";
+import RoomDetail from "./Pages/RoomDetail";
 
 function App() {
   return (
@@ -31,7 +32,8 @@ function App() {
                   <Route path="/" element={<Map />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/rooms" element={<Rooms />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/rooms/:roomId" element={<RoomDetail />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/utilities" element={<Utilities />} />
                   <Route path="/exit" element={<Exit />} />
                   <Route path="/system" element={<System />} />
