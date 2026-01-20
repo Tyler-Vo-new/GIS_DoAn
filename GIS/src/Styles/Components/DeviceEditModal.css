@@ -1,0 +1,76 @@
+.edit-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.edit-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.edit-input,
+.edit-select,
+.edit-textarea {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: var(--default-font);
+  color: #111827;
+  background: #ffffff;
+}
+
+.edit-input.has-error,
+.edit-select.has-error,
+.edit-textarea.has-error {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.edit-input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.edit-coordinates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.edit-radio-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.edit-radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.edit-textarea {
+  resize: vertical;
+}
+
+.edit-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .edit-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}

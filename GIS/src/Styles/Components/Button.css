@@ -1,0 +1,41 @@
+.app-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 600;
+  background: #e7f0ff;
+  color: #2563eb;
+  transition: filter 0.2s ease;
+}
+
+.app-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.app-btn--primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.app-btn--danger {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.app-btn--ghost {
+  background: transparent;
+  color: #6b7280;
+  border-radius: 6px;
+  padding: 4px 6px;
+}
+
+.app-btn:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
